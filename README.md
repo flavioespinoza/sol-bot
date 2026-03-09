@@ -1,4 +1,4 @@
-# SolBot
+# Sol Bot
 
 [![npm version](https://img.shields.io/npm/v/solbot.svg?style=flat-square)](https://www.npmjs.com/package/solbot)
 [![npm downloads](https://img.shields.io/npm/dm/solbot.svg?style=flat-square)](https://www.npmjs.com/package/solbot)
@@ -468,4 +468,4 @@ This SDK is provided as-is. Always:
 
 ---
 
-**Built for builders** by the SolBot team
+**Built for builders** by the Sol Bot team

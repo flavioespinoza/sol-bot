@@ -1,6 +1,6 @@
-# SolBot Examples
+# Sol Bot Examples
 
-This directory contains practical examples demonstrating how to use the SolBot.
+This directory contains practical examples demonstrating how to use Sol Bot.
 
 ## 📚 Overview
 

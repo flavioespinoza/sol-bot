@@ -1,4 +1,4 @@
-# SolBot
+# Sol Bot
 
 A Solana DeFi trading bot built on the Zero Protocol. Implements a 9-rule OTT Trend + RSI-14 strategy for leveraged SOL-perp positions with automated stop-loss, take-profit, and re-entry logic. Dry-run mode by default.
 

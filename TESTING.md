@@ -1,4 +1,4 @@
-# Testing Guide for SolBot
+# Testing Guide for Sol Bot
 
 ## Overview
 
