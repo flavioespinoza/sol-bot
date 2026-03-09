@@ -1,7 +1,7 @@
 {
-  "name": "zero-ts-sdk",
+  "name": "solbot",
   "version": "0.1.0",
-  "description": "TypeScript SDK for Zero Protocol - A Solana DeFi lending protocol",
+  "description": "A Solana DeFi trading bot built on the Zero Protocol — OTT Trend + RSI-14 strategy for leveraged SOL-perp positions",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -56,16 +56,16 @@
     "blockchain",
     "web3"
   ],
-  "author": "Zero Protocol",
+  "author": "flavioespinoza",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:flavioespinoza/zero-ts-sdk.git"
+    "url": "git@github.com:flavioespinoza/sol-bot.git"
   },
   "bugs": {
-    "url": "https://github.com/flavioespinoza/zero-ts-sdk/issues"
+    "url": "https://github.com/flavioespinoza/sol-bot/issues"
   },
-  "homepage": "https://github.com/flavioespinoza/zero-ts-sdk#readme",
+  "homepage": "https://github.com/flavioespinoza/sol-bot#readme",
   "engines": {
     "node": ">=18.0.0"
   },

@@ -1,10 +1,10 @@
-# Zero TypeScript SDK
+# SolBot
 
-[![npm version](https://img.shields.io/npm/v/zero-ts-sdk.svg?style=flat-square)](https://www.npmjs.com/package/zero-ts-sdk)
-[![npm downloads](https://img.shields.io/npm/dm/zero-ts-sdk.svg?style=flat-square)](https://www.npmjs.com/package/zero-ts-sdk)
+[![npm version](https://img.shields.io/npm/v/solbot.svg?style=flat-square)](https://www.npmjs.com/package/solbot)
+[![npm downloads](https://img.shields.io/npm/dm/solbot.svg?style=flat-square)](https://www.npmjs.com/package/solbot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![GitHub](https://img.shields.io/badge/GitHub-flavioespinoza%2Fzero--ts--sdk-181717.svg?style=flat-square&logo=github)](https://github.com/flavioespinoza/zero-ts-sdk)
+[![GitHub](https://img.shields.io/badge/GitHub-flavioespinoza%2Fsol--bot-181717.svg?style=flat-square&logo=github)](https://github.com/flavioespinoza/sol-bot)
 
 A modern, type-safe TypeScript SDK for interacting with the Zero Protocol on Solana. Lend, borrow, and manage leveraged DeFi positions with a clean, developer-friendly API.
 
@@ -23,11 +23,11 @@ A modern, type-safe TypeScript SDK for interacting with the Zero Protocol on Sol
 ## Installation
 
 ```bash
-npm install zero-ts-sdk
+npm install solbot
 # or
-yarn add zero-ts-sdk
+yarn add solbot
 # or
-pnpm add zero-ts-sdk
+pnpm add solbot
 ```
 
 ## Quick Start
@@ -36,7 +36,7 @@ pnpm add zero-ts-sdk
 
 ```typescript
 import { Connection, PublicKey } from "@solana/web3.js";
-import { ZeroClient, getConfig } from "zero-ts-sdk";
+import { ZeroClient, getConfig } from "solbot";
 
 // Connect to Solana
 const connection = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
@@ -53,7 +53,7 @@ console.log(`Loaded ${client.banks.length} banks`);
 ### 2. Load Your Account
 
 ```typescript
-import { MarginfiAccount, MarginfiAccountWrapper } from "zero-ts-sdk";
+import { MarginfiAccount, MarginfiAccountWrapper } from "solbot";
 
 const accountAddress = new PublicKey("YOUR_MARGINFI_ACCOUNT_ADDRESS");
 
@@ -67,7 +67,7 @@ const wrappedAccount = new MarginfiAccountWrapper(account, client);
 ### 3. Find a Bank
 
 ```typescript
-import { AssetTag } from "zero-ts-sdk";
+import { AssetTag } from "solbot";
 
 // Option 1: Get bank by address
 const bank = client.getBank(new PublicKey("BANK_ADDRESS"));
@@ -114,7 +114,7 @@ const borrowTx = await wrappedAccount.makeBorrowTx(
 ### 6. Monitor Account Health
 
 ```typescript
-import { MarginRequirementType } from "zero-ts-sdk";
+import { MarginRequirementType } from "solbot";
 
 // Get free collateral in USD
 const freeCollateral = wrappedAccount.computeFreeCollateral();
@@ -232,10 +232,10 @@ The SDK provides optimized entry points:
 
 ```typescript
 // Main SDK (core functionality)
-import { ZeroClient, MarginfiAccount, getConfig } from "zero-ts-sdk";
+import { ZeroClient, MarginfiAccount, getConfig } from "solbot";
 
 // Vendor utilities (oracle integrations, Jupiter, etc.)
-import { fetchOracleData, OraclePrice } from "zero-ts-sdk/vendor";
+import { fetchOracleData, OraclePrice } from "solbot/vendor";
 ```
 
 **Why separate vendor exports?**
@@ -258,7 +258,7 @@ import type {
   OraclePrice,
   MarginRequirementType,
   ZeroConfig,
-} from "zero-ts-sdk";
+} from "solbot";
 ```
 
 ### Multiple Bank Support
@@ -279,7 +279,7 @@ const kaminoBanks = client.getBanksByMint(WSOL_MINT, AssetTag.KAMINO);
 Built-in account health monitoring:
 
 ```typescript
-import { MarginRequirementType } from "zero-ts-sdk";
+import { MarginRequirementType } from "solbot";
 
 // Free collateral (how much you can still borrow)
 const free = wrapped.computeFreeCollateral();
@@ -349,7 +349,7 @@ pnpm format
 ### Project Structure
 
 ```
-zero-ts-sdk/
+solbot/
 ├── src/
 │   ├── index.ts              # Main SDK exports
 │   ├── vendor/               # Vendor entry point (oracles, etc.)
@@ -468,4 +468,4 @@ This SDK is provided as-is. Always:
 
 ---
 
-**Built for builders** 🛠️ by the Zero team
+**Built for builders** by the SolBot team

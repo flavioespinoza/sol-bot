@@ -1,6 +1,6 @@
-# Zero SDK Examples
+# SolBot Examples
 
-This directory contains practical examples demonstrating how to use the Zero SDK.
+This directory contains practical examples demonstrating how to use the SolBot.
 
 ## 📚 Overview
 
@@ -340,7 +340,7 @@ import {
   MarginRequirementType,
   Bank,
   OraclePrice,
-} from "zero-ts-sdk";
+} from "solbot";
 ```
 
 ## 🐛 Troubleshooting

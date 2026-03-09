@@ -1,4 +1,4 @@
-# Testing Guide for Zero TypeScript SDK
+# Testing Guide for SolBot
 
 ## Overview
 

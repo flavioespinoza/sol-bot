@@ -16,5 +16,5 @@ export * from "./types";
 export * from "./instructions";
 export * from "./sync-instructions";
 export * from "./utils/pda.utils";
-// Vendor exports moved to separate entry point: zero-ts-sdk/vendor
+// Vendor exports moved to separate entry point: solbot/vendor
 // This prevents bundling massive oracle/protocol integrations when not needed
