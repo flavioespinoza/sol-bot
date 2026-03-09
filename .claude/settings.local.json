@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init)"
+    ],
+    "additionalDirectories": [
+      "/Users/flavio/Portfolio/p0-ts-sdk/.claude"
+    ]
+  }
+}
