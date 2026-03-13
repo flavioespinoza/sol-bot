@@ -33,14 +33,12 @@ Also, what is your hourly rate, and where are you located? I'm in Kaysville, so 
 
 ---
 
-
 Flavio Espinoza <flavio.espinoza@gmail.com>
 Mar 6, 2026, 5:34 PM (7 days ago)
 to Trajan
 
 
 Subject: Re: Solana trading bot project
-
 
 
 Hi Trajan,
@@ -76,8 +74,9 @@ Do you have experience in the AI trend detection side? I was planning to tackle 
 
 Thanks Flavio.
 
-**NOTE TO ChatGPT Meeting Assistant** This is the image that from Trajan that I uploaded. Examine it and show me a report of your understanding of it in the chat.
+**NOTE TO ChatGPT Meeting Assistant** This is the image that from Trajan that I uploaded. Examine it and show me a report of your understanding of it in the chat. Image name: **image-from-trajan-king.png**
 
+---
 
 Flavio Espinoza <flavio.espinoza@gmail.com>
 Mar 9, 2026, 8:15 AM (4 days ago)
@@ -111,7 +110,7 @@ behaviorally well-covered, and free of critical or warning-level issues."
 
 Also, and this is not a brag–– and makes me think I should get out of the house more 😊––but in December 2025, l logged into ChatGPT when the following image popped up:
 
-**NOTE TO ChatGPT Meeting Assistant** This image is not important. What it shows is outlined below.
+**NOTE TO ChatGPT Meeting Assistant** This image has not been uploaded and is not important. What it shows is outlined below.
 
 When I asked ChatGPT what it meant, it said that I am a Top 3% Global Power User of ChatGPT, with over 6,800 messages in 2025 alone. I have since migrated to Claude (coding), Gemini (brainstorming), and DeepSeek (research) for my AI needs.
 
@@ -137,6 +136,8 @@ Best,
 Flavio
 
 P.S. If you want, maybe this Thursday or Friday we can jump on my Zoom and discuss this further.
+
+---
 
 Trajan King
 Mar 9, 2026, 11:30 AM (4 days ago)
