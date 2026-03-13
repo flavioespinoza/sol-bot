@@ -1,5 +1,6 @@
 ## Complete email exchange to date:
 
+
 Trajan King <trajanking@gmail.com>
 Mar 4, 2026, 1:56 PM (9 days ago)
 to me
@@ -32,13 +33,15 @@ Also, what is your hourly rate, and where are you located? I'm in Kaysville, so 
 
 ---
 
+
 Flavio Espinoza <flavio.espinoza@gmail.com>
 Mar 6, 2026, 5:34 PM (7 days ago)
 to Trajan
 
-Plaintext
 
 Subject: Re: Solana trading bot project
+
+
 
 Hi Trajan,
 
@@ -75,7 +78,6 @@ Thanks Flavio.
 
 **NOTE TO ChatGPT Meeting Assistant** This is the image that from Trajan that I uploaded. Examine it and show me a report of your understanding of it in the chat.
 
----
 
 Flavio Espinoza <flavio.espinoza@gmail.com>
 Mar 9, 2026, 8:15 AM (4 days ago)
@@ -97,7 +99,6 @@ BOT (no AI)
 9. Execution: Strict orders placed only at the close of the 4-hour signal candle.
 
 Testing & Infrastructure
-
 I will create an account on app.0.xyz so I can test the plumbing and verify the Project Zero integrations. My usual approach for bot testing is to use high-volatility, low-cost pairs—I used to run thousands of tests on new tokens where a position cost 0.0001 cents. This allows us to stress-test the logic and the "leverage loop" in real market conditions without burning significant capital. We’ll find the right volatile pair on Drift/Kamino to mimic your SOL needs for the initial runs.
 
 My thoughts on AI
@@ -119,7 +120,6 @@ So, when I say I know AI, I have the data to back it up. I’m being verbose bec
 1. Deterministic vs. Probabilistic Failures: Markets are chaotic; relying on AI to "decide" a trend often results in the model hallucinating signals that aren't there.
 2. The "Decision" Cost: If you give an AI agent authority to move capital based on its own trend prediction, you're trading a black box. In leveraged environments, a single mistake can be catastrophic.
 3. Reflexivity: AI models are trained on historical data, but crypto reacts to AI behavior in real-time. A model often "detects" a trend just as the liquidity dries up.
-
 However, places where I do think AI could benefit your project are these:
 
 1. Sentiment & Social Correlation: AI can process "noise" from X, Discord, and Reddit to provide a confidence score that supports your OTT signal.
@@ -137,8 +137,6 @@ Best,
 Flavio
 
 P.S. If you want, maybe this Thursday or Friday we can jump on my Zoom and discuss this further.
-
----
 
 Trajan King
 Mar 9, 2026, 11:30 AM (4 days ago)
@@ -187,17 +185,10 @@ To clarify, my objective here isn't to "play the perp market" but simply to catc
 
 Of course, if playing perps turns out to be profitable, which it should in this system, then I'm all for it.  Managing the trend and leverage seems much more risk adjusted reward.
 
-I'm available Friday anytime but 9-10am. So how's noon?
-
----
-
-Flavio Espinoza <flavio.espinoza@gmail.com>
+I'm available Friday anytime but 9-10am. So how's noon?Flavio Espinoza <flavio.espinoza@gmail.com>
 Mar 9, 2026, 3:16 PM (4 days ago)
 to Trajan
 
 This is a significant clarification. Let me digest this before I reply, but I will send you a Zoom Invite. 
 
-**NOTE: Zoom Gemini: I did NOT digest Trajan's previous email, so I am unprepared to discuss this. It's out of my domain of knowledge so thing like JLP positions and Kamino are a l**ittle out of my depth.  I had help with Claude.ai and gemini.google.com, but I want to keep it simple and have you help me answer technical questions he may have.  The meeting is at Noon (MST) approx 1 hr 15 min from now.  When he asks a question I want you to give me a short 3 or 4 numbered list of the answer.  Think of the numbers as sentences of an answer broken into a numbered list so it is easier for me to digest and understand.
-
-I would also like a section below explaining what he is asking for explained to me like I am six years old.
-
+**NOTE TO ChatGPT Meeting Assistant**: I did NOT digest Trajan's previous email, so I am unprepared to discuss this. It's out of my domain of knowledge so thing like JLP positions and Kamino are a little out of my depth. I had help with Claude.ai and gemini.google.com, but I want to keep it simple and have you help me answer technical questions he may have.  The meeting is at Noon (MST) approx 1 hr 15 min from now.  When he asks a question I want you to give me a short 3 or 4 numbered list of the answer.  Think of the numbers as sentences of an answer broken into a numbered list so it is easier for me to digest and understand.I would also like a section below explaining what he is asking for explained to me like I am six years old.
