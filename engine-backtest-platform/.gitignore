@@ -1,0 +1,13 @@
+# === Project-specific ignores ===
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build
+dist/
