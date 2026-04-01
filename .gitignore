@@ -1,0 +1,21 @@
+# === Project-specific ignores ===
+.DS_Store
+.env
+.env/
+.env.*
+!.env.example
+node_modules/
+dist/
+data/binance-raw/
+
+# === Override global gitignore for this project ===
+# All images allowed (screenshots, Trajan data, spec visuals)
+!*.png
+!*.jpg
+!*.jpeg
+!*.webp
+
+
+# === Audio
+*.m4a
+*.mp3

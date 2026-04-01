@@ -1,0 +1,23 @@
+{
+	"name": "sol-bot",
+	"version": "1.0.0",
+	"description": "SOL trading signal engine with OTT indicator, backtest platform, and automated trading bot",
+	"type": "module",
+	"scripts": {
+		"clean": "prettier --write .",
+		"build": "tsc",
+		"backtest": "tsc && node dist/index.js",
+		"test": "vitest run"
+	},
+	"devDependencies": {
+		"@types/papaparse": "^5.5.2",
+		"typescript": "^5.7.0",
+		"vitest": "^3.0.0"
+	},
+	"dependencies": {
+		"papaparse": "^5.5.0",
+		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
+		"prettier": "^3.8.1",
+		"prettier-plugin-tailwindcss": "^0.7.2"
+	}
+}

@@ -1,0 +1,37 @@
+[
+	{
+		"check": "chronological_execution",
+		"passed": true,
+		"detail": "All candles in order"
+	},
+	{
+		"check": "no_future_1d_usage",
+		"passed": true,
+		"detail": "No future daily data used"
+	},
+	{
+		"check": "valid_entries",
+		"passed": true,
+		"detail": "All 12 entries have valid signals and trend alignment"
+	},
+	{
+		"check": "no_overlapping_trades",
+		"passed": true,
+		"detail": "No overlapping positions"
+	},
+	{
+		"check": "valid_exit_reasons",
+		"passed": true,
+		"detail": "All exit reasons valid"
+	},
+	{
+		"check": "equity_reconciliation",
+		"passed": true,
+		"detail": "Final equity 9982.95 matches last trade output"
+	},
+	{
+		"check": "deterministic_outputs",
+		"passed": true,
+		"detail": "Must be verified by running engine twice and comparing outputs"
+	}
+]
