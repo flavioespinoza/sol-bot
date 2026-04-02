@@ -9,11 +9,66 @@ This project has two parts:
 1. **Python backtest engine** — Runs the OTT indicator strategy against Binance CSV data and outputs results.
 2. **Next.js frontend** — React UI that calls the Python engine via API routes and displays the chart, results panel, equity curve, and trade log.
 
-The TypeScript files in `src/engine/` are **reference implementation only**. They show you what the OTT indicator does, what the strategy logic is, and what the expected outputs look like. **Do not use the TypeScript engine as the actual backend.** Build a pure Python engine. No frameworks required — just pandas and numpy.
+The TypeScript files in `src/engine/` are **reference implementation only**. They show you what the OTT indicator does, what the strategy logic is, and what the expected outputs look like. **Do not use the TypeScript engine as the actual backend.**
 
 ---
 
-## The Python Engine (What You Build)
+## Step 0: Choose Your Engine (Docker Check)
+
+Before building anything, check if the Docker daemon is available:
+
+```bash
+docker ps > /dev/null 2>&1
+```
+
+- **If that command succeeds (exit code 0):** Use **QuantConnect LEAN** as the backtest engine. See [Option A: LEAN Engine](#option-a-lean-engine-docker-available) below.
+- **If it fails:** Fall back to a **custom Python engine** using pandas and numpy. See [Option B: Custom Python Engine](#option-b-custom-python-engine-fallback) below.
+
+---
+
+## Option A: LEAN Engine (Docker Available)
+
+Use the open-source [QuantConnect LEAN engine](https://github.com/QuantConnect/Lean) (Apache 2.0). It runs locally via Docker — no subscription needed when you bring your own data.
+
+### Install the LEAN CLI
+
+```bash
+pip install lean
+```
+
+### Initialize
+
+```bash
+lean init
+```
+
+### Strategy
+
+Implement the OTT indicator strategy as a LEAN algorithm (Python). The algorithm should:
+
+- Compute the OTT indicator (EMA + ratcheting bands) — see `src/engine/ott-indicator.ts` for reference
+- **OTT trend bullish** → LONG (hold the asset, 1x, no leverage)
+- **OTT trend bearish** → FLAT (cash, no position)
+- Use the Binance SOL/USDT daily CSV in `data/sol/` as the data source
+
+### Run backtest
+
+```bash
+lean backtest <project-name>
+```
+
+This pulls and runs the `quantconnect/lean` Docker image. Results must match the expected values in the [Expected Results](#expected-results-ema-40-4) section below.
+
+### Default Parameters
+
+- **EMA length:** 40
+- **Band percent:** 0.04 (4%)
+
+---
+
+## Option B: Custom Python Engine (Fallback)
+
+If Docker is not available, build a pure Python engine. No frameworks required — just pandas and numpy.
 
 ### Install dependencies
 
@@ -46,7 +101,9 @@ The TypeScript implementation in `src/engine/ott-indicator.ts` is the reference.
 - **EMA length:** 40
 - **Band percent:** 0.04 (4%)
 
-### The Data
+---
+
+## The Data (Both Options)
 
 `data/sol/binance-sol-1d-2021-to-2026-feb.csv` — SOL/USDT daily candles from Binance. 1,885 bars, Jan 2021 through Feb 2026. No headers.
 
@@ -56,7 +113,9 @@ open_time, open, high, low, close, volume, close_time, ...
 
 Timestamps are milliseconds since epoch.
 
-### Execution Model
+---
+
+## Execution Model (Both Options)
 
 Next-bar entry (standard backtest convention):
 
@@ -64,9 +123,11 @@ Next-bar entry (standard backtest convention):
 - Fill happens at bar N's close
 - First P&L tick is bar N+1
 
-### Expected Results (EMA 40, 4%)
+---
 
-Your Python engine must produce these numbers on the SOL/USDT dataset:
+## Expected Results (EMA 40, 4%)
+
+Whichever engine you use (LEAN or custom Python), it must produce these numbers on the SOL/USDT dataset:
 
 | Metric | Expected Value |
 |--------|---------------|
@@ -108,7 +169,7 @@ Your Python engine must produce these numbers on the SOL/USDT dataset:
 Wire the Next.js backend to call the Python engine. The API routes should:
 
 - Accept parameters (EMA length, band percent, starting capital)
-- Run the Python backtest script
+- Run the backtest engine (LEAN CLI or custom Python script, whichever was built)
 - Return results as JSON to the frontend
 
 ### 1. Candlestick Chart (D3.js)
@@ -117,7 +178,7 @@ Wire the Next.js backend to call the Python engine. The API routes should:
 - **Wicks** — high/low lines from body
 - **OTT line overlay** — drawn on top of candles
 - **EMA line overlay** — lighter/thinner than OTT
-- **Signal markers** — arrows on BUY/SELL bars
+- **Signal markers** — blue arrows up on BUY bars, pink arrows down on SELL bars
 - **Dark background** — dark theme
 - **X axis** — date labels
 - **Y axis** — price on right side
@@ -186,9 +247,10 @@ This should match the expected results above. Your Python engine must produce th
 
 ## Important Rules
 
+- **First, check Docker:** Run `docker ps > /dev/null 2>&1`. If exit code is 0, use Option A (LEAN). If it fails, use Option B (custom Python).
 - Do not `cd` into subdirectories. Run all commands from the project root using relative paths.
 - Do not modify `src/engine/` — it is reference only.
-- The Python engine is the real backend. The TypeScript engine is reference only.
+- The TypeScript engine is reference only. The real backend is either LEAN (Option A) or custom Python (Option B).
 - Starting capital is $10,000 for all backtests.
 
 ---
@@ -204,6 +266,12 @@ engine-backtest-platform/
 │       ├── csv-loader.ts
 │       ├── backtest.ts
 │       └── index.ts
+├── python/              ← Option B: custom Python engine (created if no Docker)
+│   ├── ott.py
+│   ├── backtest.py
+│   ├── loader.py
+│   └── main.py
+├── lean/                ← Option A: LEAN project (created if Docker available)
 ├── data/
 │   └── sol/
 │       └── binance-sol-1d-2021-to-2026-feb.csv
@@ -219,12 +287,14 @@ engine-backtest-platform/
 
 | Criteria | Pass/Fail |
 |----------|-----------|
-| Python engine runs and produces correct results | |
-| OTT strategy implemented in Python | |
+| Docker check performed before building engine | |
+| If Docker available: LEAN engine set up and runs | |
+| If no Docker: custom Python engine built and runs | |
+| OTT strategy implemented correctly | |
 | EMA(40) 4% produces 96 trades, 17,663% return | |
 | Results match expected values above | |
 | Next.js frontend builds and runs | |
-| API routes call Python engine | |
+| API routes call the backtest engine | |
 | Candlestick chart renders all 1,885 bars | |
 | OTT line overlay renders on chart | |
 | Buy/sell signal markers on correct bars | |
