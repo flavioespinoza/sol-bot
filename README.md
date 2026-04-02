@@ -10,15 +10,21 @@ Sol Bot is a signal engine that uses the OTT (Optimized Trend Tracker) indicator
 
 ```
 sol-bot/
-├── src/__A__/          ← GT40 signal engine (OTT indicator, backtest, trade log)
-├── src/services/       ← Solana account, bank, price, staking services
-├── src/vendor/         ← Drift, Klend, Jupiter Lend, SPL token utils
-├── src/utils/          ← accounting, conversion, PDA utils
-├── platform/src/       ← dashboard UI (Next.js, React components, hooks)
-├── data/               ← Binance OHLCV candle data (SOL, BTC, SP500)
-├── output/             ← backtest output files
-└── output-binance/     ← Binance-specific backtest output
+├── src/__A__/                  ← GT40 signal engine (OTT indicator, backtest, trade log)
+├── platform/src/               ← dashboard UI components (Next.js, React, hooks, utils)
+├── engine-backtest-platform/   ← backtest platform (Python LEAN engine + Next.js frontend)
+├── data/                       ← Binance OHLCV candle data (SOL, BTC, SP500)
+├── output/                     ← backtest output files
+└── output-binance/             ← Binance-specific backtest output
 ```
+
+## engine-backtest-platform
+
+The `engine-backtest-platform/` directory is a self-contained subproject. It has its own `package.json`, `README.md`, and source tree. See `engine-backtest-platform/README.md` for the full spec.
+
+The platform has two parts:
+- **Python backtest engine** — QuantConnect LEAN, implements the OTT strategy, runs against Binance CSV data
+- **Next.js frontend** — React UI with D3 charts, results panel, equity curve, trade log
 
 ## Setup
 

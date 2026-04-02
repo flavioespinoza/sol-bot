@@ -2,20 +2,55 @@
 
 A web-based charting and backtesting platform for crypto trading strategies. Candlestick charts with indicator overlays, trade signal markers, and a results dashboard. Self-hosted and fully customizable.
 
-## What's Already Built
+## Overview
 
-The backtest engine is complete and verified. It lives in `src/engine/` and does the following:
+This project has two parts:
 
-- Loads Binance OHLCV CSV data (`csv-loader.ts`)
-- Computes the OTT (Optimized Trend Tracker) indicator (`ott-indicator.ts`)
-- Runs a trend-following backtest strategy (`backtest.ts`)
-- Returns candle data with OTT values, trend state, buy/sell signals, equity tracking, and a trade log
+1. **Python backtest engine** — built with QuantConnect LEAN. Runs the OTT indicator strategy against Binance CSV data and outputs results.
+2. **Next.js frontend** — React UI that calls the Python engine via API routes and displays the chart, results panel, equity curve, and trade log.
 
-**You do not need to modify the engine.** Your job is to build the web UI that visualizes what the engine produces.
+The TypeScript files in `src/engine/` are **reference implementation only**. They show you what the OTT indicator does, what the strategy logic is, and what the expected outputs look like. **Do not use the TypeScript engine as the actual backend.** Build a Python engine using LEAN.
 
-## The Data
+---
 
-`data/sol/binance-sol-1d-2021-to-2026-feb.csv` — SOL/USDT daily candles from Binance. 1,885 bars from Jan 2021 through Feb 2026. No headers. Format:
+## The Python Engine (What You Build)
+
+### Install LEAN
+
+**LEAN Engine (open source — Apache 2.0):** https://github.com/QuantConnect/Lean
+
+```bash
+pip install lean
+```
+
+### Strategy
+
+One rule:
+
+- OTT trend is **bullish** → LONG (hold the asset, 1x, no leverage)
+- OTT trend is **bearish** → FLAT (cash, no position)
+
+### OTT Indicator
+
+The OTT (Optimized Trend Tracker) indicator:
+
+- Computes EMA of close prices with a given length
+- Builds ratcheting support/resistance bands at ±percent around the EMA
+- In an uptrend: the OTT line only moves up (ratchets up with price)
+- In a downtrend: the OTT line only moves down (ratchets down with price)
+- When price crosses above OTT → **BUY signal**
+- When price crosses below OTT → **SELL signal**
+
+The TypeScript implementation in `src/engine/ott-indicator.ts` is the reference. Translate this logic to Python for LEAN.
+
+### Default Parameters
+
+- **EMA length:** 40
+- **Band percent:** 0.04 (4%)
+
+### The Data
+
+`data/sol/binance-sol-1d-2021-to-2026-feb.csv` — SOL/USDT daily candles from Binance. 1,885 bars, Jan 2021 through Feb 2026. No headers.
 
 ```
 open_time, open, high, low, close, volume, close_time, ...
@@ -23,31 +58,17 @@ open_time, open, high, low, close, volume, close_time, ...
 
 Timestamps are milliseconds since epoch.
 
-## The Strategy
+### Execution Model
 
-One rule — that's it:
+Next-bar entry (standard backtest convention):
 
-- OTT trend is **bullish** → LONG (hold the asset)
-- OTT trend is **bearish** → FLAT (cash, no position)
+- Signal fires at bar N's close
+- Fill happens at bar N's close
+- First P&L tick is bar N+1
 
-No leverage. No shorts. No multi-indicator complexity. Just trend following with OTT.
+### Expected Results (EMA 40, 4%)
 
-### OTT Indicator
-
-The OTT (Optimized Trend Tracker) uses:
-- An EMA (Exponential Moving Average) of close prices
-- Ratcheting support/resistance bands at ±percent around the EMA
-- In an uptrend, the OTT line only moves up (ratchets). In a downtrend, it only moves down.
-- When price crosses above OTT → BUY signal. When price crosses below → SELL signal.
-
-### Default Parameters
-
-- **EMA length:** 40
-- **Band percent:** 0.04 (4%)
-
-### Verified Results (EMA 40, 4%)
-
-These results have been independently verified. Your UI must produce these same numbers:
+Your Python engine must produce these numbers on the SOL/USDT dataset:
 
 | Metric | Expected Value |
 |--------|---------------|
@@ -60,11 +81,7 @@ These results have been independently verified. Your UI must produce these same 
 | Buy & hold return | 4,479% |
 | Buy & hold equity | $457,901 |
 
-If your results panel shows different numbers, something is wrong with how you're calling the engine.
-
-You can verify by running: `npx tsx src/engine/verify.ts`
-
-### Additional Settings for Reference
+### Additional Parameter Settings
 
 | EMA | Band % | Trades | Return |
 |-----|--------|--------|--------|
@@ -73,69 +90,11 @@ You can verify by running: `npx tsx src/engine/verify.ts`
 | 30 | 4% | 108 | ~14,980% |
 | 40 | 4% | 96 | ~17,663% |
 
-## What to Build
+---
 
-### 1. Candlestick Chart (D3.js)
+## The Frontend (What You Build)
 
-The centerpiece. A professional candlestick chart:
-
-- **Candle bodies** — green (bullish, close > open), red (bearish, close < open)
-- **Wicks** — high/low lines extending from body
-- **OTT line overlay** — drawn on top of candles, showing the OTT indicator value
-- **EMA line overlay** — the underlying EMA, lighter/thinner than OTT
-- **Signal markers** — arrows or markers on bars where buy/sell signals occur
-- **Dark background** — dark theme (dark gray/near-black background, light text)
-- **X axis** — date labels
-- **Y axis** — price scale on right side
-- **Chart header** — symbol name (SOL/USDT), timeframe (1D), current OHLC values
-- **Zoom** — mouse wheel zooms in/out
-- **Pan** — click and drag to scroll through time
-- **Crosshair** — on hover, shows vertical + horizontal lines with OHLC values and date
-
-### 2. Backtest Controls Panel
-
-Sidebar or top bar with controls:
-
-| Control | Type | Default |
-|---------|------|---------|
-| EMA Length | Number input or slider | 40 |
-| OTT Percent | Number input or slider | 4 (displayed as %, passed to engine as 0.04) |
-| Starting Capital | Number input | 10000 |
-| Run Backtest | Button | — |
-
-When "Run Backtest" is clicked, call the engine with the selected parameters and update all visualizations.
-
-### 3. Results Panel
-
-Display these metrics prominently after a backtest run:
-
-| Metric | Notes |
-|--------|-------|
-| Total Return % | Large, prominent number |
-| Final Equity | Dollar value |
-| Max Drawdown % | Highlight red if > 20% |
-| Trade Count | Number of round trips |
-| Days in Market | Count + percentage of total days |
-| Buy & Hold Return | Side-by-side comparison |
-| Buy & Hold Final Equity | So the user can compare strategies |
-
-### 4. Equity Curve
-
-A separate line chart (D3) below the candlestick chart:
-
-- Strategy equity over time (solid line)
-- Buy & hold equity overlay (dashed line, different color)
-- Same X axis (time) as the candlestick chart, synced zoom/pan
-
-### 5. Trade Log Table
-
-Scrollable table showing every trade:
-
-```
-Date | Action (LONG/FLAT) | Price | Equity | Return %
-```
-
-## Tech Stack
+### Tech Stack
 
 | Component | Choice |
 |-----------|--------|
@@ -146,44 +105,102 @@ Date | Action (LONG/FLAT) | Price | Equity | Return %
 | State | Zustand (or React state — your call) |
 | Icons | Lucide React |
 
-## How to Use the Engine
+### API Layer
 
-The engine exports everything from `src/engine/index.ts`:
+Wire the Next.js backend to call the Python engine. The API routes should:
 
-```typescript
-import { loadBinanceCsv, runBacktest, buyAndHold } from './engine'
+- Accept parameters (EMA length, band percent, starting capital)
+- Run the Python LEAN backtest
+- Return results as JSON to the frontend
 
-// Load data
-const candles = loadBinanceCsv('data/sol/binance-sol-1d-2021-to-2026-feb.csv')
+### 1. Candlestick Chart (D3.js)
 
-// Run backtest
-const result = runBacktest(candles, 40, 0.04) // emaLength=40, percent=4%
+- **Candle bodies** — green (bullish, close > open), red (bearish, close < open)
+- **Wicks** — high/low lines from body
+- **OTT line overlay** — drawn on top of candles
+- **EMA line overlay** — lighter/thinner than OTT
+- **Signal markers** — arrows on BUY/SELL bars
+- **Dark background** — dark theme
+- **X axis** — date labels
+- **Y axis** — price on right side
+- **Chart header** — symbol (SOL/USDT), timeframe (1D), OHLC values
+- **Zoom** — mouse wheel
+- **Pan** — click and drag
+- **Crosshair** — OHLC + date on hover
 
-// result.ottCandles — array of candles with ema, ott, trend, signal fields
-// result.trades — number of trades
-// result.returnPct — total return percentage
-// result.finalEquity — ending dollar value
-// result.maxDrawdownPct — worst peak-to-trough drawdown
-// result.tradeLog — array of { date, action, price, equity }
-// result.bullishDays / result.bearishDays — time in/out of market
+### 2. Backtest Controls Panel
 
-// Buy and hold comparison
-const bnh = buyAndHold(candles)
-// bnh.returnPct, bnh.finalEquity, bnh.maxDrawdownPct
+| Control | Type | Default |
+|---------|------|---------|
+| EMA Length | Number input or slider | 40 |
+| OTT Percent | Number input or slider | 4 (passed to engine as 0.04) |
+| Starting Capital | Number input | 10000 |
+| Run Backtest | Button | — |
+
+### 3. Results Panel
+
+| Metric | Notes |
+|--------|-------|
+| Total Return % | Large, prominent |
+| Final Equity | Dollar value |
+| Max Drawdown % | Red if > 20% |
+| Trade Count | Round trips |
+| Days in Market | Count + % |
+| Buy & Hold Return | Side by side |
+| Buy & Hold Final Equity | Comparison |
+
+### 4. Equity Curve
+
+D3 line chart below the candlestick chart:
+
+- Strategy equity (solid line)
+- Buy & hold equity (dashed line)
+- Synced X axis with candlestick chart
+
+### 5. Trade Log Table
+
+Scrollable table:
+
+```
+Date | Action (LONG/FLAT) | Price | Equity | Return %
 ```
 
-The engine files use Node.js `fs` to read CSVs. For the web app, you'll need to either:
-- Create an API route that loads data server-side and returns JSON
-- Or load the CSV client-side via fetch and parse it in the browser
+---
 
-Either approach works. The OTT computation and backtest logic are pure functions — they just need an array of `OhlcvCandle` objects.
+## TypeScript Reference Engine
+
+`src/engine/` contains a verified TypeScript implementation of the same OTT strategy. Use it to understand:
+
+- How the OTT indicator is computed (`ott-indicator.ts`)
+- How the backtest loop works (`backtest.ts`)
+- What the CSV format looks like (`csv-loader.ts`)
+- What output structures to produce (`types.ts`)
+
+You can verify the TypeScript engine produces correct output:
+
+```bash
+npx tsx src/engine/verify.ts
+```
+
+This should match the expected results above. Your Python LEAN engine must produce the same numbers.
+
+---
+
+## Important Rules
+
+- Do not `cd` into subdirectories. Run all commands from the project root using relative paths.
+- Do not modify `src/engine/` — it is reference only.
+- The Python engine is the real backend. The TypeScript engine is reference only.
+- Starting capital is $10,000 for all backtests.
+
+---
 
 ## Project Structure
 
 ```
 engine-backtest-platform/
 ├── src/
-│   └── engine/          ← DO NOT MODIFY — verified backtest engine
+│   └── engine/          ← REFERENCE ONLY — TypeScript OTT implementation
 │       ├── types.ts
 │       ├── ott-indicator.ts
 │       ├── csv-loader.ts
@@ -198,23 +215,23 @@ engine-backtest-platform/
 └── README.md
 ```
 
-Build your Next.js app around this structure. The `src/engine/` directory is a black box — import from it, don't change it.
+---
 
 ## Success Criteria
 
 | Criteria | Pass/Fail |
 |----------|-----------|
+| Python LEAN engine installed and runs | |
+| OTT strategy implemented in Python | |
+| EMA(40) 4% produces 96 trades, 17,663% return | |
+| Results match expected values above | |
+| Next.js frontend builds and runs | |
+| API routes call Python engine | |
 | Candlestick chart renders all 1,885 bars | |
-| Green/red candle coloring is correct | |
 | OTT line overlay renders on chart | |
-| Buy/sell signal markers appear on correct bars | |
-| Zoom (mouse wheel) works | |
-| Pan (click-drag) works | |
+| Buy/sell signal markers on correct bars | |
+| Zoom and pan work | |
 | Crosshair shows OHLC + date on hover | |
-| Dark theme with professional aesthetic | |
-| Backtest controls allow changing EMA/percent | |
 | Results panel shows correct metrics | |
-| EMA(40) 4% shows 96 trades, 17,663% return | |
-| Equity curve renders below candlestick chart | |
-| Buy & hold overlay on equity curve | |
-| Trade log table is scrollable and accurate | |
+| Equity curve renders with buy & hold overlay | |
+| Trade log table is accurate | |
