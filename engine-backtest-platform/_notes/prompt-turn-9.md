@@ -5,6 +5,6 @@ Add the OTT line overlay and EMA line overlay on top of the candles in the candl
 - OTT line: more prominent (thicker, brighter color)
 - EMA line: lighter and thinner
 
-Then add buy/sell signal markers on the bars where trend flips — arrows or dots, your choice. Use green for buy signals and red for sell signals so they stand out from the candle colors. They need to be on the correct bars matching the trade log.
+Then add buy/sell signal markers on the bars where trend flips. Blue arrows pointing up on buy signals, pink arrows pointing down on sell signals. They need to be on the correct bars matching the trade log.
 
 Verify the signal markers line up with the trade log entries.
