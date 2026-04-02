@@ -101,7 +101,9 @@ The TypeScript implementation in `src/engine/ott-indicator.ts` is the reference.
 - **EMA length:** 40
 - **Band percent:** 0.04 (4%)
 
-### The Data
+---
+
+## The Data (Both Options)
 
 `data/sol/binance-sol-1d-2021-to-2026-feb.csv` — SOL/USDT daily candles from Binance. 1,885 bars, Jan 2021 through Feb 2026. No headers.
 
@@ -111,7 +113,9 @@ open_time, open, high, low, close, volume, close_time, ...
 
 Timestamps are milliseconds since epoch.
 
-### Execution Model
+---
+
+## Execution Model (Both Options)
 
 Next-bar entry (standard backtest convention):
 
@@ -119,7 +123,9 @@ Next-bar entry (standard backtest convention):
 - Fill happens at bar N's close
 - First P&L tick is bar N+1
 
-### Expected Results (EMA 40, 4%)
+---
+
+## Expected Results (EMA 40, 4%)
 
 Whichever engine you use (LEAN or custom Python), it must produce these numbers on the SOL/USDT dataset:
 
@@ -163,7 +169,7 @@ Whichever engine you use (LEAN or custom Python), it must produce these numbers 
 Wire the Next.js backend to call the Python engine. The API routes should:
 
 - Accept parameters (EMA length, band percent, starting capital)
-- Run the Python backtest script
+- Run the backtest engine (LEAN CLI or custom Python script, whichever was built)
 - Return results as JSON to the frontend
 
 ### 1. Candlestick Chart (D3.js)
@@ -172,7 +178,7 @@ Wire the Next.js backend to call the Python engine. The API routes should:
 - **Wicks** — high/low lines from body
 - **OTT line overlay** — drawn on top of candles
 - **EMA line overlay** — lighter/thinner than OTT
-- **Signal markers** — arrows on BUY/SELL bars
+- **Signal markers** — blue arrows up on BUY bars, pink arrows down on SELL bars
 - **Dark background** — dark theme
 - **X axis** — date labels
 - **Y axis** — price on right side
