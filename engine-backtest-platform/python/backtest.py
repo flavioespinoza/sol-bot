@@ -52,7 +52,12 @@ class BuyAndHoldResult:
     final_equity: float
 
 
-def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> BacktestResult:
+def run_backtest(
+    candles: pd.DataFrame,
+    ema_length: int,
+    percent: float,
+    starting_equity: float = STARTING_EQUITY,
+) -> BacktestResult:
     ott_df = compute_ott(candles, ema_length, percent)
 
     closes = ott_df["close"].to_numpy(dtype=float)
@@ -60,8 +65,8 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> Back
     timestamps = ott_df["timestamp"].to_numpy()
     n = len(ott_df)
 
-    equity = STARTING_EQUITY
-    peak = STARTING_EQUITY
+    equity = starting_equity
+    peak = starting_equity
     max_dd = 0.0
     trades = 0
     state = "long" if trends[0] == "bullish" else "flat"
@@ -104,7 +109,7 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> Back
         ema_length=ema_length,
         percent=percent,
         trades=trades,
-        return_pct=(equity - STARTING_EQUITY) / STARTING_EQUITY * 100.0,
+        return_pct=(equity - starting_equity) / starting_equity * 100.0,
         max_drawdown_pct=max_dd,
         final_equity=equity,
         bullish_days=bullish_days,
@@ -114,17 +119,19 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> Back
     )
 
 
-def buy_and_hold(candles: pd.DataFrame) -> BuyAndHoldResult:
+def buy_and_hold(
+    candles: pd.DataFrame, starting_equity: float = STARTING_EQUITY
+) -> BuyAndHoldResult:
     closes = candles["close"].to_numpy(dtype=float)
     first = closes[0]
     last = closes[-1]
     return_pct = (last - first) / first * 100.0
-    final_equity = STARTING_EQUITY * (1.0 + return_pct / 100.0)
+    final_equity = starting_equity * (1.0 + return_pct / 100.0)
 
-    peak = STARTING_EQUITY
+    peak = starting_equity
     max_dd = 0.0
     for c in closes:
-        eq = STARTING_EQUITY * (c / first)
+        eq = starting_equity * (c / first)
         if eq > peak:
             peak = eq
         dd = (peak - eq) / peak * 100.0
