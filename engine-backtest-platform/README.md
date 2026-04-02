@@ -6,10 +6,10 @@ A web-based charting and backtesting platform for crypto trading strategies. Can
 
 This project has two parts:
 
-1. **Python backtest engine** — built with QuantConnect LEAN. Runs the OTT indicator strategy against Binance CSV data and outputs results.
+1. **Python backtest engine** — Runs the OTT indicator strategy against Binance CSV data and outputs results.
 2. **Next.js frontend** — React UI that calls the Python engine via API routes and displays the chart, results panel, equity curve, and trade log.
 
-The TypeScript files in `src/engine/` are **reference implementation only**. They show you what the OTT indicator does, what the strategy logic is, and what the expected outputs look like. **Do not use the TypeScript engine as the actual backend.** Build a Python engine using LEAN.
+The TypeScript files in `src/engine/` are **reference implementation only**. They show you what the OTT indicator does, what the strategy logic is, and what the expected outputs look like. **Do not use the TypeScript engine as the actual backend.** Build a pure Python engine. No frameworks required — just pandas and numpy.
 
 ---
 
@@ -39,7 +39,7 @@ The OTT (Optimized Trend Tracker) indicator:
 - When price crosses above OTT → **BUY signal**
 - When price crosses below OTT → **SELL signal**
 
-The TypeScript implementation in `src/engine/ott-indicator.ts` is the reference. Translate this logic to Python for LEAN.
+The TypeScript implementation in `src/engine/ott-indicator.ts` is the reference. Translate this logic to Python.
 
 ### Default Parameters
 
@@ -108,7 +108,7 @@ Your Python engine must produce these numbers on the SOL/USDT dataset:
 Wire the Next.js backend to call the Python engine. The API routes should:
 
 - Accept parameters (EMA length, band percent, starting capital)
-- Run the Python LEAN backtest
+- Run the Python backtest script
 - Return results as JSON to the frontend
 
 ### 1. Candlestick Chart (D3.js)
@@ -180,7 +180,7 @@ You can verify the TypeScript engine produces correct output:
 npx tsx src/engine/verify.ts
 ```
 
-This should match the expected results above. Your Python LEAN engine must produce the same numbers.
+This should match the expected results above. Your Python engine must produce the same numbers.
 
 ---
 
@@ -219,7 +219,7 @@ engine-backtest-platform/
 
 | Criteria | Pass/Fail |
 |----------|-----------|
-| Python LEAN engine installed and runs | |
+| Python engine runs and produces correct results | |
 | OTT strategy implemented in Python | |
 | EMA(40) 4% produces 96 trades, 17,663% return | |
 | Results match expected values above | |
