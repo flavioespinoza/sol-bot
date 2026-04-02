@@ -18,7 +18,12 @@ from ott import compute_ott
 STARTING_EQUITY = 10_000.0
 
 
-def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> dict:
+def run_backtest(
+    candles: pd.DataFrame,
+    ema_length: int,
+    percent: float,
+    starting_equity: float = STARTING_EQUITY,
+) -> dict:
     ott = compute_ott(candles, ema_length, percent)
 
     closes = ott["close"].to_numpy()
@@ -26,8 +31,8 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> dict
     timestamps = ott["timestamp"]
     n = len(ott)
 
-    equity = STARTING_EQUITY
-    peak = STARTING_EQUITY
+    equity = starting_equity
+    peak = starting_equity
     max_dd = 0.0
     trades = 0
     state = "long" if trends[0] == "bullish" else "flat"
@@ -69,7 +74,7 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> dict
         "ema_length": ema_length,
         "percent": percent,
         "trades": trades,
-        "return_pct": (equity - STARTING_EQUITY) / STARTING_EQUITY * 100.0,
+        "return_pct": (equity - starting_equity) / starting_equity * 100.0,
         "max_drawdown_pct": max_dd,
         "final_equity": equity,
         "bullish_days": bullish_days,
@@ -79,17 +84,17 @@ def run_backtest(candles: pd.DataFrame, ema_length: int, percent: float) -> dict
     }
 
 
-def buy_and_hold(candles: pd.DataFrame) -> dict:
+def buy_and_hold(candles: pd.DataFrame, starting_equity: float = STARTING_EQUITY) -> dict:
     closes = candles["close"].to_numpy()
     first, last = closes[0], closes[-1]
 
     return_pct = (last - first) / first * 100.0
-    final_equity = STARTING_EQUITY * (1.0 + return_pct / 100.0)
+    final_equity = starting_equity * (1.0 + return_pct / 100.0)
 
-    peak = STARTING_EQUITY
+    peak = starting_equity
     max_dd = 0.0
     for c in closes:
-        eq = STARTING_EQUITY * (c / first)
+        eq = starting_equity * (c / first)
         if eq > peak:
             peak = eq
         dd = (peak - eq) / peak * 100.0

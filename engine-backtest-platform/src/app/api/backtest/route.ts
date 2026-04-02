@@ -1,45 +1,52 @@
+import { spawn } from 'child_process'
 import { resolve } from 'path'
 import { NextRequest, NextResponse } from 'next/server'
-import { loadBinanceCsv } from '@/engine/csv-loader'
-import { runBacktest, buyAndHold } from '@/engine/backtest'
+
+// Spawns the Python engine. Don't let Next try to prerender this.
+export const dynamic = 'force-dynamic'
+
+function runEngine(ema: number, percent: number, capital: number): Promise<string> {
+	const script = resolve(process.cwd(), 'python', 'main.py')
+	return new Promise((res, rej) => {
+		const proc = spawn('python3', [
+			script,
+			'--ema', String(ema),
+			'--percent', String(percent),
+			'--capital', String(capital)
+		])
+		let stdout = ''
+		let stderr = ''
+		proc.stdout.on('data', (d) => (stdout += d))
+		proc.stderr.on('data', (d) => (stderr += d))
+		proc.on('error', rej)
+		proc.on('close', (code) => {
+			if (code !== 0) {
+				rej(new Error(`python exited ${code}: ${stderr}`))
+			} else {
+				res(stdout)
+			}
+		})
+	})
+}
 
 export async function GET(request: NextRequest) {
-	const searchParams = request.nextUrl.searchParams
-	const emaLength = parseInt(searchParams.get('ema') || '40')
-	const percent = parseFloat(searchParams.get('percent') || '0.04')
+	const sp = request.nextUrl.searchParams
+	const ema = parseInt(sp.get('ema') || '40', 10)
+	const percent = parseFloat(sp.get('percent') || '0.04')
+	const capital = parseFloat(sp.get('capital') || '10000')
 
-	const dataFile = resolve(process.cwd(), 'data/sol/binance-sol-1d-2021-to-2026-feb.csv')
-	const candles = loadBinanceCsv(dataFile)
+	if (!Number.isFinite(ema) || !Number.isFinite(percent) || !Number.isFinite(capital)) {
+		return NextResponse.json({ error: 'invalid params' }, { status: 400 })
+	}
 
-	const result = runBacktest(candles, emaLength, percent)
-	const bnh = buyAndHold(candles)
-
-	return NextResponse.json({
-		params: { emaLength, percent },
-		trades: result.trades,
-		returnPct: result.returnPct,
-		maxDrawdownPct: result.maxDrawdownPct,
-		finalEquity: result.finalEquity,
-		bullishDays: result.bullishDays,
-		bearishDays: result.bearishDays,
-		totalDays: candles.length,
-		tradeLog: result.tradeLog,
-		buyAndHold: {
-			returnPct: bnh.returnPct,
-			maxDrawdownPct: bnh.maxDrawdownPct,
-			finalEquity: bnh.finalEquity
-		},
-		ottCandles: result.ottCandles.map((c) => ({
-			timestamp: c.timestamp.toISOString(),
-			open: c.open,
-			high: c.high,
-			low: c.low,
-			close: c.close,
-			volume: c.volume,
-			ema: c.ema,
-			ott: c.ott,
-			trend: c.trend,
-			signal: c.signal
-		}))
-	})
+	try {
+		const stdout = await runEngine(ema, percent, capital)
+		return new NextResponse(stdout, {
+			status: 200,
+			headers: { 'content-type': 'application/json' }
+		})
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err)
+		return NextResponse.json({ error: msg }, { status: 500 })
+	}
 }
