@@ -15,12 +15,10 @@ The TypeScript files in `src/engine/` are **reference implementation only**. The
 
 ## The Python Engine (What You Build)
 
-### Install LEAN
-
-**LEAN Engine (open source — Apache 2.0):** https://github.com/QuantConnect/Lean
+### Install dependencies
 
 ```bash
-pip install lean
+pip install pandas numpy
 ```
 
 ### Strategy
