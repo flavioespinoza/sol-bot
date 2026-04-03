@@ -13,6 +13,8 @@ _reports/
 _sprint/
 _tasks/
 _tools/
+_output/
+_output-binance/
 
 # === Override global gitignore for this project ===
 # All images allowed (screenshots, Trajan data, spec visuals)
