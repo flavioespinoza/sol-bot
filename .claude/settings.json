@@ -9,7 +9,9 @@
       "Bash(python3)",
       "Bash(git ls-tree:*)",
       "Bash(git checkout:*)",
-      "Bash(grep \"\\\\.py$\")"
+      "Bash(grep \"\\\\.py$\")",
+      "Bash(git rm:*)",
+      "Bash(gh api:*)"
     ],
     "additionalDirectories": [
       "/Users/flavio/Portfolio/sol-bot/engine-backtest-platform/_notes"
