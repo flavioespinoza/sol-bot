@@ -8,6 +8,12 @@ node_modules/
 dist/
 data/binance-raw/
 
+# === Sensitive directories (not tracked until ready) ===
+_reports/
+_sprint/
+_tasks/
+_tools/
+
 # === Override global gitignore for this project ===
 # All images allowed (screenshots, Trajan data, spec visuals)
 !*.png
