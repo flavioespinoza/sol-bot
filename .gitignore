@@ -8,7 +8,8 @@ node_modules/
 dist/
 data/binance-raw/
 
-# === Sensitive directories (not tracked until ready) ===
+# === Sensitive directories (not tracked until ready) ===All right. You, uh, you need to add TradingView to the popover
+
 _reports/
 _sprint/
 _tasks/
