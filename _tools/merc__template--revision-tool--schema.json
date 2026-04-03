@@ -1,0 +1,35 @@
+{
+	"taskId": "",
+	"fields": {
+		"model_a_task_success": { "rating": 0, "draft": "" },
+		"model_a_interaction_quality": { "rating": 0, "draft": "" },
+		"model_a_code_quality": { "rating": 0, "draft": "" },
+		"model_a_thoroughness": { "rating": 0, "draft": "" },
+		"model_b_task_success": { "rating": 0, "draft": "" },
+		"model_b_interaction_quality": { "rating": 0, "draft": "" },
+		"model_b_code_quality": { "rating": 0, "draft": "" },
+		"model_b_thoroughness": { "rating": 0, "draft": "" },
+		"overall_preference": { "rating": 0, "draft": "" },
+		"instruction_following": { "rating": 0, "draft": "" },
+		"time_to_resolution": { "rating": 0, "draft": "" },
+		"vibes": { "rating": 0, "draft": "" },
+		"general_feedback": { "rating": null, "draft": "" }
+	},
+	"transcripts": {
+		"model_a_task_success": [
+			{ "id": "a1", "label": "A-1: tag_name", "severity": "Major", "text": "" }
+		],
+		"model_a_interaction_quality": [],
+		"model_a_code_quality": [],
+		"model_a_thoroughness": [],
+		"model_b_task_success": [],
+		"model_b_interaction_quality": [],
+		"model_b_code_quality": [],
+		"model_b_thoroughness": [],
+		"overall_preference": [],
+		"instruction_following": [],
+		"time_to_resolution": [],
+		"vibes": [],
+		"general_feedback": []
+	}
+}

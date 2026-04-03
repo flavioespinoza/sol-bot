@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Issues Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #bdbdbd;
+    color: #1a1a1a;
+    padding: 24px;
+    line-height: 1.6;
+  }
+  h1 { color: #1a1a1a; font-size: 24px; margin-bottom: 8px; font-weight: 700; }
+  .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+  .controls-bar {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .controls-bar button {
+    padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px;
+    background: #fff; color: #374151; cursor: pointer; font-size: 13px;
+  }
+  .controls-bar button:hover { background: #f3f4f6; }
+  .controls-bar .danger { border-color: #ef4444; color: #ef4444; }
+  .controls-bar .danger:hover { background: #fef2f2; }
+  .filter-bar {
+    display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .filter-bar button {
+    padding: 6px 14px; border: 1px solid #d1d5db; border-radius: 16px;
+    background: #fff; color: #6b7280; cursor: pointer; font-size: 12px;
+  }
+  .filter-bar button.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .model-header {
+    background: #e0e0e0; border: 1px solid #d0d0d0; border-radius: 8px;
+    padding: 14px 20px; margin: 28px 0 12px 0;
+  }
+  .model-header h2 { color: #1a1a1a; font-size: 18px; font-weight: 700; }
+  .issue-card {
+    background: #e0e0e0; border: 1px solid #d0d0d0; border-radius: 8px;
+    padding: 20px; margin-bottom: 14px;
+  }
+  .issue-card.hidden { display: none !important; }
+  .issue-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .issue-header h3 { color: #1a1a1a; font-size: 14px; flex-shrink: 0; font-weight: 700; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-major { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .badge-minor { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .badge-observation { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .badge-type { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .badge-type-instruction { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+  .badge-type-overengineering { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+  .badge-type-tool-use { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+  .badge-type-laziness { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+  .badge-type-verification { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  .badge-type-false-claims { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .badge-type-root-cause { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .badge-type-verbose { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+  .badge-type-scope-creep { background: #ccfbf1; color: #115e59; border: 1px solid #99f6e4; }
+  .badge-type-behavioral { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+  .badge-other {
+    background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb;
+    font-family: monospace;
+  }
+  .draft-label {
+    font-size: 12px; font-weight: 600; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px 0;
+  }
+  .draft-content {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 12px 16px; font-size: 13px; line-height: 1.7; color: #374151;
+    max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .hidden { display: none !important; }
+  .revision-area { position: relative; margin-top: 4px; }
+  .revision-area textarea {
+    width: 100%; min-height: 120px; background: #fff;
+    border: 1px solid #22c55e; border-radius: 6px; padding: 12px 16px;
+    font-family: inherit; font-size: 13px; line-height: 1.7;
+    color: #1a1a1a; resize: vertical;
+  }
+  .revision-area textarea:focus {
+    outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px #2563eb22;
+  }
+  .revision-area textarea::placeholder { color: #9ca3af; }
+  .btn-row { display: flex; gap: 8px; margin-top: 6px; justify-content: flex-end; align-items: center; }
+  .btn-copy, .btn-clear-field {
+    padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;
+    border: 1px solid #d1d5db; background: #fff; color: #374151;
+  }
+  .btn-copy:hover { background: #f3f4f6; }
+  .btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .btn-clear-field { color: #9ca3af; }
+  .btn-clear-field:hover { background: #f3f4f6; }
+  .word-count { font-size: 11px; color: #9ca3af; }
+  .saved-indicator {
+    position: fixed; bottom: 20px; right: 20px; background: #22c55e; color: #fff;
+    padding: 8px 16px; border-radius: 6px; font-size: 13px;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .saved-indicator.show { opacity: 1; }
+  .transcript-wrap { position: relative; margin-bottom: 8px; }
+  .transcript-ref {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 12px 16px; font-size: 12px; line-height: 1.6; color: #6b7280;
+    max-height: 150px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;
+    font-style: italic;
+  }
+  .transcript-wrap .btn-row {
+    display: flex; justify-content: flex-end; margin-top: 4px;
+  }
+  .empty-state {
+    background: #fff; border: 2px dashed #d0d0d0; border-radius: 8px;
+    padding: 48px; text-align: center; color: #888; font-size: 14px;
+    margin-bottom: 32px;
+  }
+  .empty-state code { display: block; margin-top: 12px; font-size: 12px; color: #555; }
+  .paste-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 100; justify-content: center; align-items: center;
+  }
+  .paste-overlay.show { display: flex; }
+  .paste-box {
+    background: #fff; border-radius: 12px; padding: 24px; width: 600px;
+    max-height: 80vh; display: flex; flex-direction: column; gap: 12px;
+  }
+  .paste-box h2 { font-size: 18px; font-weight: 600; }
+  .paste-box textarea {
+    width: 100%; height: 300px; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; resize: vertical;
+  }
+  .paste-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+  .paste-box button {
+    padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    border: 1px solid #d1d5db; background: #fff; color: #374151;
+  }
+  .paste-box button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .paste-box .error { color: #dc2626; font-size: 12px; min-height: 18px; }
+</style>
+</head>
+<body>
+
+<h1 id="page-title">Issues Tool</h1>
+<p class="subtitle">Per-issue description + your revision. Saves to localStorage.</p>
+
+<div class="controls-bar">
+  <button onclick="showPasteOverlay()">Import JSON</button>
+  <button onclick="exportJSON()">Export JSON</button>
+  <button onclick="copyAllRevisions()">Copy All Revisions</button>
+  <button class="danger" onclick="clearAllRevisions()">Clear All Revisions</button>
+</div>
+
+<div class="filter-bar" id="filter-bar"></div>
+
+<div id="app"></div>
+<div id="saved-indicator" class="saved-indicator">Saved</div>
+
+<!-- Paste JSON overlay -->
+<div id="paste-overlay" class="paste-overlay">
+  <div class="paste-box">
+    <h2>Import JSON Data</h2>
+    <textarea id="paste-area" placeholder='Paste your JSON here...'></textarea>
+    <div id="paste-error" class="error"></div>
+    <div class="btn-row">
+      <button onclick="hidePasteOverlay()">Cancel</button>
+      <button class="primary" onclick="loadFromPaste()">Load</button>
+    </div>
+  </div>
+</div>
+
+<!--
+  DATA BLOCK — Claude Code fills this JSON for each task.
+  Same schema as merc__template--behavioral-issues--schema.json
+-->
+<script id="task-data" type="application/json">
+{
+  "taskId": "",
+  "issues": []
+}
+</script>
+
+<script>
+const DATA_KEY = 'merc_issues_tool_data';
+
+function getData() {
+  const stored = localStorage.getItem(DATA_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch {}
+  }
+  const block = document.getElementById('task-data');
+  try { return JSON.parse(block.textContent); } catch {}
+  return { taskId: '', issues: [] };
+}
+
+function saveData(data) {
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+
+function revKey() {
+  const data = getData();
+  return 'merc_issues_revisions_' + (data.taskId || 'default');
+}
+
+function loadRevisions() {
+  try { return JSON.parse(localStorage.getItem(revKey()) || '{}'); } catch { return {}; }
+}
+
+function saveRevision(id, value) {
+  const r = loadRevisions();
+  r[id] = value;
+  localStorage.setItem(revKey(), JSON.stringify(r));
+  flashSaved();
+}
+
+function flashSaved() {
+  const el = document.getElementById('saved-indicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+function countWords(t) { return t.trim() ? t.trim().split(/\s+/).length : 0; }
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function showPasteOverlay() {
+  document.getElementById('paste-area').value = JSON.stringify(getData(), null, 2);
+  document.getElementById('paste-error').textContent = '';
+  document.getElementById('paste-overlay').classList.add('show');
+}
+
+function hidePasteOverlay() {
+  document.getElementById('paste-overlay').classList.remove('show');
+}
+
+function loadFromPaste() {
+  const raw = document.getElementById('paste-area').value;
+  try {
+    const data = JSON.parse(raw);
+    if (!data.issues || !Array.isArray(data.issues)) {
+      document.getElementById('paste-error').textContent = 'JSON must have an "issues" array.';
+      return;
+    }
+    saveData(data);
+    hidePasteOverlay();
+    render();
+  } catch (e) {
+    document.getElementById('paste-error').textContent = 'Invalid JSON: ' + e.message;
+  }
+}
+
+function exportJSON() {
+  const data = getData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (data.taskId || 'issues-tool') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyText(id) {
+  const ta = document.getElementById('rev-' + id);
+  const btn = document.getElementById('btn-' + id);
+  if (!ta.value.trim()) return;
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function copyTranscript(id) {
+  const issues = getData().issues;
+  const issue = issues.find(i => i.id === id);
+  if (!issue) return;
+  const btn = document.getElementById('btn-tr-' + id);
+  navigator.clipboard.writeText(issue.transcript).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function clearField(id) {
+  const ta = document.getElementById('rev-' + id);
+  ta.value = '';
+  saveRevision(id, '');
+  document.getElementById('wc-' + id).textContent = '0 words';
+}
+
+function updateWordCount(id) {
+  const ta = document.getElementById('rev-' + id);
+  document.getElementById('wc-' + id).textContent = countWords(ta.value) + ' words';
+}
+
+function filterIssues(filter, btn) {
+  document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.issue-card').forEach(card => {
+    const model = card.dataset.model;
+    const severity = card.dataset.severity;
+    if (filter === 'all') card.classList.remove('hidden');
+    else if (filter === 'A' || filter === 'B') card.classList.toggle('hidden', model !== filter);
+    else card.classList.toggle('hidden', severity !== filter);
+  });
+}
+
+function copyAllRevisions() {
+  const revisions = loadRevisions();
+  const issues = getData().issues;
+  const lines = [];
+  issues.forEach(issue => {
+    const val = revisions[issue.id] || '';
+    if (val.trim()) {
+      lines.push('**Issue ' + issue.num + ' (Model ' + issue.model + ') \u2014 ' + issue.tag + ' [' + issue.severity + ']**');
+      lines.push('');
+      lines.push(val.trim());
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+    }
+  });
+  if (lines.length === 0) { alert('No revisions to copy.'); return; }
+  navigator.clipboard.writeText(lines.join('\n'));
+  flashSaved();
+}
+
+function clearAllRevisions() {
+  if (!confirm('Clear ALL your revisions? This cannot be undone.')) return;
+  localStorage.removeItem(revKey());
+  document.querySelectorAll('textarea').forEach(t => { t.value = ''; });
+  document.querySelectorAll('[id^="wc-"]').forEach(w => { w.textContent = '0 words'; });
+}
+
+function severityClass(s) {
+  if (s === 'Major') return 'badge-major';
+  if (s === 'Minor') return 'badge-minor';
+  return 'badge-observation';
+}
+
+function typeClass(t) {
+  const map = {
+    'Instruction Following Failures': 'badge-type-instruction',
+    'Overengineering': 'badge-type-overengineering',
+    'Tool Use Errors': 'badge-type-tool-use',
+    'Laziness': 'badge-type-laziness',
+    'Verification Failures': 'badge-type-verification',
+    'False Claims of Success': 'badge-type-false-claims',
+    'Fails to Address Root Cause': 'badge-type-root-cause',
+    'Verbose Language': 'badge-type-verbose',
+    'Scope Creep': 'badge-type-scope-creep',
+    'Behavioral': 'badge-type-behavioral'
+  };
+  return map[t] || 'badge-type';
+}
+
+function render() {
+  const data = getData();
+  const issues = data.issues || [];
+  const revisions = loadRevisions();
+
+  // Title
+  const title = data.taskId ? data.taskId + ' \u2014 Issues Tool' : 'Issues Tool';
+  document.getElementById('page-title').textContent = title;
+  document.title = title;
+
+  // Filter bar
+  const modelA = issues.filter(i => i.model === 'A');
+  const modelB = issues.filter(i => i.model === 'B');
+  const filterBar = document.getElementById('filter-bar');
+  filterBar.innerHTML =
+    '<button class="active" onclick="filterIssues(\'all\', this)">All (' + issues.length + ')</button>' +
+    '<button onclick="filterIssues(\'A\', this)">Model A (' + modelA.length + ')</button>' +
+    '<button onclick="filterIssues(\'B\', this)">Model B (' + modelB.length + ')</button>' +
+    '<button onclick="filterIssues(\'Major\', this)">Major</button>' +
+    '<button onclick="filterIssues(\'Minor\', this)">Minor</button>' +
+    '<button onclick="filterIssues(\'Observation\', this)">Observation</button>';
+
+  // Empty state
+  if (issues.length === 0) {
+    document.getElementById('app').innerHTML =
+      '<div class="empty-state">No data loaded.<br>Click <strong>Import JSON</strong> to paste issue data, or have Claude Code fill the JSON block.<code>See merc__template--behavioral-issues--schema.json for the data shape.</code></div>';
+    return;
+  }
+
+  // Issue cards
+  let html = '';
+  let lastModel = null;
+
+  issues.forEach(issue => {
+    if (issue.model !== lastModel) {
+      lastModel = issue.model;
+      html += '<div class="model-header"><h2>Model ' + issue.model + ' Issues</h2></div>';
+    }
+
+    const savedVal = revisions[issue.id] || '';
+    const wc = countWords(savedVal);
+
+    html += '<div class="issue-card" data-model="' + issue.model + '" data-severity="' + issue.severity + '">';
+
+    // Header badges
+    html += '<div class="issue-header">';
+    html += '<h3>Issue ' + issue.num + '</h3>';
+    html += '<span class="badge ' + severityClass(issue.severity) + '">' + issue.severity + '</span>';
+    html += '<span class="badge ' + typeClass(issue.type) + '">' + escapeHtml(issue.type) + '</span>';
+    html += '<span class="badge badge-other">' + escapeHtml(issue.tag) + '</span>';
+    html += '</div>';
+
+    // Transcript
+    html += '<div class="draft-label">Transcript Reference</div>';
+    html += '<div class="transcript-wrap">';
+    html += '<div class="transcript-ref">' + escapeHtml(issue.transcript) + '</div>';
+    html += '<div class="btn-row"><button class="btn-copy" id="btn-tr-' + issue.id + '" onclick="copyTranscript(\'' + issue.id + '\')">Copy</button></div>';
+    html += '</div>';
+
+    // Current description (full width, no Gemini column)
+    html += '<div class="draft-label">Current Description</div>';
+    html += '<div class="draft-content">' + escapeHtml(issue.description) + '</div>';
+
+    // Revision textarea
+    html += '<div class="draft-label">Your Final Description</div>';
+    html += '<div class="revision-area">';
+    html += '<textarea id="rev-' + issue.id + '" placeholder="Write your final description here..." oninput="saveRevision(\'' + issue.id + '\', this.value); updateWordCount(\'' + issue.id + '\')">' + escapeHtml(savedVal) + '</textarea>';
+    html += '<div class="btn-row">';
+    html += '<span id="wc-' + issue.id + '" class="word-count">' + wc + ' words</span>';
+    html += '<button class="btn-clear-field" onclick="clearField(\'' + issue.id + '\')">Clear</button>';
+    html += '<button class="btn-copy" id="btn-' + issue.id + '" onclick="copyText(\'' + issue.id + '\')">Copy</button>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>';
+  });
+
+  document.getElementById('app').innerHTML = html;
+}
+
+render();
+</script>
+
+</body>
+</html>

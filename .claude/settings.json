@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pipx install:*)",
+      "Bash(git clone:*)",
+      "Bash(dotnet --version)",
+      "Bash(python3 /tmp/gt40_equity_curves.py)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3)",
+      "Bash(git ls-tree:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}

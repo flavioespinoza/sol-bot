@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TASK_13396 — Behavioral Issues</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #fafafa;
+    color: #333;
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+  .summary-bar {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .summary-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px 24px;
+    min-width: 160px;
+  }
+  .summary-card .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .summary-card .value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .model-section {
+    margin-bottom: 40px;
+  }
+  .model-header {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  .model-header.model-a { border-bottom-color: #3b82f6; }
+  .model-header.model-b { border-bottom-color: #f59e0b; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+    table-layout: fixed;
+  }
+  thead {
+    background: #f5f5f5;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #fafcff; }
+  /* Column widths */
+  .col-num { width: 36px; }
+  .col-type { width: 150px; }
+  .col-tag { width: 160px; }
+  .col-severity { width: 90px; }
+  .col-desc { /* remaining space */ }
+  .col-ref { width: 220px; }
+  .tag {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    word-break: break-all;
+  }
+  .severity {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .severity.major { background: #fde8e8; color: #b91c1c; }
+  .severity.minor { background: #fef3c7; color: #92400e; }
+  .severity.observation { background: #e0e7ff; color: #3730a3; }
+  .transcript-ref {
+    font-size: 12px;
+    color: #555;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .filter-bar {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 14px;
+    border: 1px solid #d0d0d0;
+    border-radius: 20px;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: #f5f5f5; }
+  .filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<h1>TASK_13396 — Behavioral Issues</h1>
+<p class="subtitle">Section 5: Behavioral Issues Log — Model A vs Model B</p>
+
+<div class="summary-bar">
+  <div class="summary-card">
+    <div class="label">Model A Total</div>
+    <div class="value">8</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Model B Total</div>
+    <div class="value">9</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Major</div>
+    <div class="value" style="color:#b91c1c;">8</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Minor</div>
+    <div class="value" style="color:#92400e;">6</div>
+  </div>
+  <div class="summary-card">
+    <div class="label">Observation</div>
+    <div class="value" style="color:#3730a3;">3</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterRows('all')">All</button>
+  <button class="filter-btn" onclick="filterRows('Major')">Major</button>
+  <button class="filter-btn" onclick="filterRows('Minor')">Minor</button>
+  <button class="filter-btn" onclick="filterRows('Observation')">Observation</button>
+</div>
+
+<!-- MODEL A -->
+<div class="model-section">
+  <div class="model-header model-a">Model A — 8 Issues (4 Major, 3 Minor, 1 Observation)</div>
+  <table id="table-a">
+    <thead>
+      <tr>
+        <th class="col-num">#</th>
+        <th class="col-type">Issue Type</th>
+        <th class="col-tag">Tag</th>
+        <th class="col-severity">Severity</th>
+        <th class="col-desc">Description</th>
+        <th class="col-ref">Transcript Reference</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-severity="Major">
+        <td>1</td>
+        <td>Laziness</td>
+        <td><span class="tag">missing_abort_signal</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>First implementation completely ignored <code>op.signal</code> — no abort listener, no upfront check. The prompt said to follow httpLink's error handling, where abort signal is passed to <code>fetch()</code>. Model acknowledged: "Fair catch — I dropped it on the floor." Took 2 exchanges to resolve.</td>
+        <td class="transcript-ref">"You're not doing anything with op.signal. In httpLink they pass the abort signal through so callers can cancel requests in flight."</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>2</td>
+        <td>Instruction Following</td>
+        <td><span class="tag">phase_boundary_violation</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>Prompt said "review together before moving on to phase 2." User's message was cut off mid-sentence. Model immediately started Phase 2 — edited <code>links.ts</code>, created <code>echo-server.js</code>, began scaffolding tests. User had to tell it to revert. Took 2 exchanges.</td>
+        <td class="transcript-ref">"I think we had a miscommunication. I said, if after I reviewed and if everything was alright, then we would move on to phase 2."</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>3</td>
+        <td>Laziness</td>
+        <td><span class="tag">unkillable_child_process</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td><code>createIPCClient</code> was a private closure with no public handle to kill the child process. On app shutdown the child becomes an orphan. <code>wsLink</code> already solved this with <code>createWSClient</code> returning a closeable client. Took 4 exchanges to refactor.</td>
+        <td class="transcript-ref">"So, when Nodes spawn() creates a new child process there is no way to shut it down?"</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>4</td>
+        <td>Verification Failures</td>
+        <td><span class="tag">no_feature_crosscheck</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>Model read <code>httpLink.ts</code> and <code>httpUtils.ts</code> where <code>op.signal</code> handling is visible. Despite reading those files, did not include abort signal handling. Ran <code>tsc</code> and <code>vitest</code> which can't catch missing features. Should have cross-checked against httpLink's feature surface.</td>
+        <td class="transcript-ref">"Fair catch — I dropped it on the floor. httpLink gets it for free because fetch() handles abort natively."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>5</td>
+        <td>Verbose Language</td>
+        <td><span class="tag">verbose_acknowledgment</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>Restated the entire task back in formatted markdown before starting work. The user's prompt already contained all of this. Could have said "Understood" and started immediately. Padding that delays actual work.</td>
+        <td class="transcript-ref">"I understand the instructions: Phase 1: Build ipcLink.ts in packages/client/src/links/..."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>6</td>
+        <td>Tool Use Errors</td>
+        <td><span class="tag">git_alias_discovery</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>First <code>git status</code> was blocked by a shell function wrapping <code>git</code>. Model investigated hooks, global settings, ran a grep that timed out, checked permissions — 5 tool calls before discovering <code>_git</code> workaround. Should have checked shell alias first.</td>
+        <td class="transcript-ref">"GIT IS LOCKED. ACCESS DENIED."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>7</td>
+        <td>Verbose Language</td>
+        <td><span class="tag">excessive_summary_table</span></td>
+        <td><span class="severity observation">Observation</span></td>
+        <td>After Phase 1, produced a large markdown summary with comparison tables, key design decisions, and line-number references. User didn't ask for a summary — just wanted to review. A one-liner would have sufficed.</td>
+        <td class="transcript-ref">"## Phase 1 Summary — ipcLink.ts | httpLink | ipcLink |..."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>8</td>
+        <td>False Claims of Success</td>
+        <td><span class="tag">incomplete_phase1_claim</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>Claimed Phase 1 was "complete and ready for review" while missing abort signal handling and consumer-facing cleanup mechanism. Both caught by user during review, not by the model.</td>
+        <td class="transcript-ref">"Phase 1 is complete and ready for review — ipcLink.ts compiles cleanly and existing tests pass."</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MODEL B -->
+<div class="model-section">
+  <div class="model-header model-b">Model B — 9 Issues (4 Major, 3 Minor, 2 Observations)</div>
+  <table id="table-b">
+    <thead>
+      <tr>
+        <th class="col-num">#</th>
+        <th class="col-type">Issue Type</th>
+        <th class="col-tag">Tag</th>
+        <th class="col-severity">Severity</th>
+        <th class="col-desc">Description</th>
+        <th class="col-ref">Transcript Reference</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-severity="Major">
+        <td>1</td>
+        <td>Instruction Following</td>
+        <td><span class="tag">jumped_to_editing</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>User asked a diagnostic question about whether permanent spawnError latch was intentional. Did not ask for changes. Model immediately edited the code and presented a fix table. User had to intervene: "no. I don't want to make any changes with this." Took 3 exchanges.</td>
+        <td class="transcript-ref">"So, when the a child process exits, spawnError() gets set and never clears... Was that intentional?"</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>2</td>
+        <td>Root Cause Failure</td>
+        <td><span class="tag">conflated_failure_modes</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>Set <code>spawnError</code> on both <code>error</code> and <code>exit</code> events, permanently disabling the link after any child process failure including transient crashes. The error/exit distinction is fundamental to Node child processes. User had to identify this by reading the code. Took 3 exchanges.</td>
+        <td class="transcript-ref">"Yes — semi-intentional but wrong. I conflated two different failure modes."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>3</td>
+        <td>Verification Failures</td>
+        <td><span class="tag">dismissed_tsc_failure</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>Ran <code>tsc --noEmit</code>, got 2 errors about missing <code>@types/node</code> and <code>vitest/globals</code>. Instead of installing deps with <code>pnpm install</code>, dismissed errors as "pre-existing" and declared Phase 1 complete. Had no proof 231 lines of new TypeScript compiled.</td>
+        <td class="transcript-ref">"The two typecheck errors are pre-existing — not related to the new file."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>4</td>
+        <td>Overengineering</td>
+        <td><span class="tag">dead_code_polyfill</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>Copied 30+ lines of browser-compatibility polyfill from <code>httpUtils.ts</code> into <code>ipcLink.ts</code>. ipcLink imports <code>node:child_process</code> — it only runs on Node ^22.18.0 where all polyfilled APIs are native. Entire polyfill is dead code. Model admitted it "pattern-matched without thinking." Took 4 exchanges.</td>
+        <td class="transcript-ref">"The AbortSignal polyfill — why'd you copy that? That's like 30 lines from httpUtils."</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>5</td>
+        <td>Verification Failures</td>
+        <td><span class="tag">missing_abort_signal</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>Initial implementation completely ignored <code>op.signal</code>. Prompt said to follow httpLink's error handling where abort signal is passed through to <code>fetchHTTPResponse</code> and checked upfront. Aborted requests sat stuck in pending map until child responded or died. User caught it by reading the code.</td>
+        <td class="transcript-ref">"You're not doing anything with op.signal... Someone aborts and the request is still there in pending."</td>
+      </tr>
+      <tr data-severity="Minor">
+        <td>6</td>
+        <td>Tool Use Errors</td>
+        <td><span class="tag">repeated_cd_failure</span></td>
+        <td><span class="severity minor">Minor</span></td>
+        <td>Ran <code>cd packages/client && pnpm typecheck</code> and got "no such file or directory." Bash tool resets working directory between calls. Should have used absolute path from the start instead of relying on stale directory state.</td>
+        <td class="transcript-ref">"(eval):cd:1: no such file or directory: packages/client"</td>
+      </tr>
+      <tr data-severity="Major">
+        <td>7</td>
+        <td>Laziness</td>
+        <td><span class="tag">no_lifecycle_cleanup</span></td>
+        <td><span class="severity major">Major</span></td>
+        <td>Link spawns a persistent child process but never provides a way to shut it down. No <code>close()</code>, <code>destroy()</code>, or teardown in any version across all commits. <code>wsLink</code> provides <code>createWSClient</code> with explicit <code>close()</code> for this reason. Never flagged as a limitation.</td>
+        <td class="transcript-ref">No close(), destroy(), or teardown mechanism exists in any version of the ipcLink implementation.</td>
+      </tr>
+      <tr data-severity="Observation">
+        <td>8</td>
+        <td>Verbose Language</td>
+        <td><span class="tag">mini_report_formatting</span></td>
+        <td><span class="severity observation">Observation</span></td>
+        <td>Produced structured mini-reports with headers, bullet comparisons, 7-row tables, and line-number citations after most edits. User asked for an ipcLink, not a report. Pattern repeated after abort signal fix, spawnError fix, and Turn 3 refactor.</td>
+        <td class="transcript-ref">"## Phase 1 complete — ready for review | Requirement | Implementation |..."</td>
+      </tr>
+      <tr data-severity="Observation">
+        <td>9</td>
+        <td>Overengineering</td>
+        <td><span class="tag">unrequested_api_surface</span></td>
+        <td><span class="severity observation">Observation</span></td>
+        <td>Added <code>spawnOptions?: Omit&lt;SpawnOptions, 'stdio'&gt;</code> to <code>IPCLinkOptions</code> — not requested in the prompt. Creates API surface consumers must understand while basics like abort signal were still missing. Scope creep on a first iteration.</td>
+        <td class="transcript-ref">spawnOptions in IPCLinkOptions at initial commit d74cc33.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function filterRows(severity) {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === (severity === 'all' ? 'All' : severity));
+  });
+  document.querySelectorAll('tbody tr').forEach(row => {
+    if (severity === 'all') {
+      row.style.display = '';
+    } else {
+      row.style.display = row.dataset.severity === severity ? '' : 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>

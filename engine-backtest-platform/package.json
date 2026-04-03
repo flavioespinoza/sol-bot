@@ -1,0 +1,35 @@
+{
+	"name": "engine-backtest-platform",
+	"version": "0.1.0",
+	"description": "Web-based charting and backtesting platform for crypto trading strategies",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.2.2",
+		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
+		"@types/d3": "^7.4.3",
+		"@types/node": "^25.5.0",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"postcss": "^8.5.8",
+		"prettier": "^3.8.1",
+		"prettier-plugin-tailwindcss": "^0.7.2",
+		"tailwindcss": "^4.2.2",
+		"tsx": "^4.21.0",
+		"typescript": "^6.0.2"
+	},
+	"dependencies": {
+		"d3": "^7.9.0",
+		"lucide-react": "^1.7.0",
+		"next": "^16.2.2",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"zustand": "^5.0.12"
+	}
+}

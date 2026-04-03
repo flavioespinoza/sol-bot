@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revision Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #bdbdbd;
+    color: #1a1a1a;
+    padding: 24px;
+    line-height: 1.6;
+  }
+  h1 { color: #1a1a1a; font-size: 24px; margin-bottom: 8px; font-weight: 700; }
+  .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+  .controls-bar {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .controls-bar button {
+    padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 6px;
+    background: #fff; color: #374151; cursor: pointer; font-size: 13px;
+    transition: background 0.15s;
+  }
+  .controls-bar button:hover { background: #f3f4f6; }
+  .controls-bar .danger { border-color: #ef4444; color: #ef4444; }
+  .controls-bar .danger:hover { background: #fef2f2; }
+  .section-header {
+    background: #e0e0e0; border: 1px solid #d0d0d0; border-radius: 8px;
+    padding: 16px 20px; margin: 32px 0 16px 0;
+  }
+  .section-header h2 { color: #1a1a1a; font-size: 18px; margin-bottom: 8px; font-weight: 700; }
+  .section-header .rules { color: #6b7280; font-size: 13px; margin-bottom: 8px; }
+  .scale-table { font-size: 12px; color: #6b7280; margin-top: 8px; }
+  .scale-table div { margin-bottom: 2px; }
+  .scale-table strong { color: #1a1a1a; }
+  .field-card {
+    background: #e0e0e0; border: 1px solid #d0d0d0; border-radius: 8px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .field-card h3 { color: #1a1a1a; font-size: 15px; margin-bottom: 4px; font-weight: 700; }
+  .field-meta { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .rating-select-wrap { display: inline-block; margin-left: 8px; vertical-align: middle; }
+  .rating-select {
+    padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    border: 1px solid #d1d5db; cursor: pointer; appearance: auto;
+  }
+  .rating-1 { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+  .rating-2 { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+  .rating-3 { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+  .rating-4 { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .rating-5 { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+  .rating-0 { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+  .rating-6 { background: #fde68a; color: #92400e; border-color: #fbbf24; }
+  .rating-7 { background: #fbbf24; color: #78350f; border-color: #f59e0b; }
+  .rating-meaning {
+    display: inline-block; margin-left: 6px; font-size: 12px;
+    color: #6b7280; vertical-align: middle;
+  }
+  .draft-label {
+    font-size: 12px; font-weight: 600; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px 0;
+  }
+  .draft-content {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 12px 16px; font-size: 13px; line-height: 1.7; color: #374151;
+    max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .revision-area { position: relative; margin-top: 4px; }
+  .revision-area textarea {
+    width: 100%; min-height: 140px; background: #fff;
+    border: 1px solid #22c55e; border-radius: 6px; padding: 12px 16px;
+    font-family: inherit; font-size: 13px; line-height: 1.7;
+    color: #1a1a1a; resize: vertical;
+  }
+  .revision-area textarea:focus {
+    outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px #2563eb22;
+  }
+  .revision-area textarea::placeholder { color: #9ca3af; }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
+  .btn-copy, .btn-clear-field {
+    padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;
+    transition: background 0.15s; border: 1px solid #d1d5db; background: #fff; color: #374151;
+  }
+  .btn-copy:hover { background: #f3f4f6; }
+  .btn-copy.copied { background: #22c55e; border-color: #22c55e; color: #fff; }
+  .btn-clear-field { color: #9ca3af; }
+  .btn-clear-field:hover { background: #f3f4f6; }
+  .word-count { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+  .hidden { display: none !important; }
+  .saved-indicator {
+    position: fixed; bottom: 20px; right: 20px; background: #22c55e; color: #fff;
+    padding: 8px 16px; border-radius: 6px; font-size: 13px;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .saved-indicator.show { opacity: 1; }
+  .transcript-section {
+    margin-top: 16px; border-top: 1px solid #d0d0d0; padding-top: 12px;
+  }
+  .transcript-section .draft-label { margin-top: 0; margin-bottom: 8px; }
+  .transcript-item {
+    background: #f5f5f5; border: 1px solid #d0d0d0; border-radius: 6px;
+    padding: 10px 14px; margin-bottom: 8px; position: relative;
+  }
+  .transcript-item .transcript-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;
+  }
+  .transcript-item .issue-label { font-size: 12px; font-weight: 700; color: #374151; }
+  .transcript-item .transcript-text {
+    font-size: 12px; line-height: 1.6; color: #4b5563;
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .transcript-item .btn-copy-transcript {
+    position: absolute; top: 8px; right: 8px;
+    padding: 3px 10px; border: 1px solid #d1d5db; border-radius: 4px;
+    background: #fff; color: #6b7280; font-size: 11px; cursor: pointer;
+  }
+  .transcript-item .btn-copy-transcript:hover { background: #f3f4f6; }
+  .badge-severity {
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+  }
+  .sev-major { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .sev-minor { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .sev-observation { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .empty-state {
+    background: #fff; border: 2px dashed #d0d0d0; border-radius: 8px;
+    padding: 48px; text-align: center; color: #888; font-size: 14px;
+    margin-bottom: 32px;
+  }
+  .empty-state code { display: block; margin-top: 12px; font-size: 12px; color: #555; }
+  .paste-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 100; justify-content: center; align-items: center;
+  }
+  .paste-overlay.show { display: flex; }
+  .paste-box {
+    background: #fff; border-radius: 12px; padding: 24px; width: 600px;
+    max-height: 80vh; display: flex; flex-direction: column; gap: 12px;
+  }
+  .paste-box h2 { font-size: 18px; font-weight: 600; }
+  .paste-box textarea {
+    width: 100%; height: 300px; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; resize: vertical;
+  }
+  .paste-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+  .paste-box button {
+    padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    border: 1px solid #d1d5db; background: #fff; color: #374151;
+  }
+  .paste-box button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .paste-box .error { color: #dc2626; font-size: 12px; min-height: 18px; }
+</style>
+</head>
+<body>
+
+<h1 id="page-title">Revision Tool</h1>
+<p class="subtitle">All paragraph fields with Claude's draft + your revision. Saves to localStorage.</p>
+
+<div class="controls-bar">
+  <button onclick="showPasteOverlay()">Import JSON</button>
+  <button onclick="exportJSON()">Export JSON</button>
+  <button onclick="copyAllRevisions()">Copy All Revisions</button>
+  <button class="danger" onclick="clearAllRevisions()">Clear All Revisions</button>
+</div>
+
+<div id="app"></div>
+<div id="saved-indicator" class="saved-indicator">Saved</div>
+
+<!-- Paste JSON overlay -->
+<div id="paste-overlay" class="paste-overlay">
+  <div class="paste-box">
+    <h2>Import JSON Data</h2>
+    <textarea id="paste-area" placeholder='Paste your JSON here...'></textarea>
+    <div id="paste-error" class="error"></div>
+    <div class="btn-row">
+      <button onclick="hidePasteOverlay()">Cancel</button>
+      <button class="primary" onclick="loadFromPaste()">Load</button>
+    </div>
+  </div>
+</div>
+
+<!--
+  DATA BLOCK — Claude Code fills this JSON for each task.
+  See merc__template--revision-tool--schema.json for the data shape.
+-->
+<script id="task-data" type="application/json">
+{
+	"taskId": "TASK_16332",
+	"fields": {
+		"model_a_task_success": {
+			"rating": 2,
+			"draft": "Model A only completed the CSV loader (Turn 2) out of 12 planned turns in its recorded session. The loader.py file was well-written and correctly parsed 1,885 Binance klines with proper timestamp normalization, matching the TypeScript reference implementation. However, the OTT indicator, backtest engine, CLI entry point, API wiring, and all frontend components were never produced during the session. The model's main session ended after committing loader.py to feature-a with the message 'Ready for the OTT indicator — how do you want it set up?' Two restart sessions (Sessions 1 and 2) were interrupted without progress. While 49 rate-limit errors contributed to delays, the core issue is that only one deliverable was produced across the entire recorded interaction."
+		},
+		"model_a_interaction_quality": {
+			"rating": 4,
+			"draft": "Model A followed all explicit constraints in its limited interaction: it checked Docker before proceeding, never used cd, never ran git without permission ('You also may not use any git commands without my express permission. Don't even ask.'), and stayed within the engine-backtest-platform/ directory. When the user's message was cut off ('The major issue with this thing is that I'), Model A appropriately asked 'Your message got cut off — looks like it stopped at... What's the issue you're seeing?' The only minor issue was verbosity in the initial planning response, which included a structured 3000+ character markdown breakdown. However, the user had explicitly asked for an algorithm walkthrough and architecture plan, making this borderline. No other interaction quality issues were observed."
+		},
+		"model_a_code_quality": {
+			"rating": 4,
+			"draft": "The single file Model A produced — loader.py — was clean, idiomatic Python. It correctly mirrored the TypeScript csv-loader.ts reference: parsed 12-column Binance kline format without headers, normalized microsecond timestamps to milliseconds, converted all OHLCV fields to float, sorted ascending by timestamp, and returned a properly typed DataFrame. The demo output confirmed 1,885 candles with dates from 2021-01-01 through 2026-02 and matching close prices. The code included a clear docstring and well-structured logic. However, only one file was produced, limiting the ability to fully assess code quality across a larger implementation."
+		},
+		"model_a_thoroughness": {
+			"rating": 2,
+			"draft": "Model A demonstrated strong analytical thoroughness in its planning phase — the OTT algorithm walkthrough correctly identified the four components (EMA, bands, ratchet mechanism, trend signals) and the critical distinction between ratchet direction (EMA vs OTT) and trend labeling (close vs OTT). The architecture proposal for a pluggable indicator system was well-reasoned. However, execution thoroughness was poor: only 1 of 6+ required components was completed. The model verified loader output against the CSV (1,885 candles, correct first 3 closes) but never reached backtest verification against expected results (96 trades, 17,663% return). The session ended with most of the task unfinished."
+		},
+		"model_b_task_success": {
+			"rating": 4,
+			"draft": "Model B completed the entire Python backtesting engine through Turn 7: CSV loader (loader.py), OTT indicator port (ott.py), backtest engine (backtest.py), CLI entry point (main.py), and Next.js API route wiring. All four parameter sets were cross-validated against the README and matched exactly (96 trades / 17,663% / $1,776,301 for EMA 40 at 4%). The API endpoint was tested live and returned correct results. Model B proactively identified and fixed a JSON serialization bug (NaN values breaking JSON.parse). A PR was opened (flavioespinoza/sol-bot#2) with 3 well-structured commits. Frontend components (Turns 8-12: D3 chart, controls, equity curve, trade log, zoom/pan) were not completed, but this was a mutual decision — the user said 'I'd like to design it before we build it, because I forgot to design it, and I wanna give you a good Figma.' Rating 4 rather than 5 because ~40% of the planned work (frontend) remains unfinished."
+		},
+		"model_b_interaction_quality": {
+			"rating": 5,
+			"draft": "Model B followed every explicit constraint flawlessly throughout its extensive session (488 messages in the main session). It never used cd, never ran git without permission, and restricted file access to engine-backtest-platform/. When the user asked to commit, Model B noted: 'There are some pre-existing staged/modified files (.claude_dev_active, claude-dev, .claude/) that aren't part of my work; I'll leave those alone and only commit engine-backtest-platform/python/loader.py.' It asked before proceeding at appropriate points: 'Want me to run both now, or step through one at a time?' Despite 229 rate-limit errors in the main session, Model B maintained clear communication and recovered gracefully from interruptions. No sycophancy, no unnecessary praise, and no instruction violations were observed."
+		},
+		"model_b_code_quality": {
+			"rating": 4,
+			"draft": "Model B produced four clean Python modules that formed a complete backtesting engine. The OTT indicator (ott.py) was an exact port of the TypeScript reference, preserving the critical distinctions between ratchet direction and trend labeling. The backtest engine (backtest.py) correctly implemented next-bar entry, equity tracking, and drawdown calculation. The CLI (main.py) accepted proper argparse flags with sensible defaults. All four parameter sets cross-validated exactly against expected results, confirming algorithmic correctness. The API route (route.ts) was cleanly rewritten to shell out to Python with proper input validation. One code quality issue: the initial implementation emitted NaN values in JSON output, which is invalid. Model B caught and fixed this proactively, adding allow_nan=False to the serializer. The code was well-structured and consistent with the existing codebase style."
+		},
+		"model_b_thoroughness": {
+			"rating": 4,
+			"draft": "Model B demonstrated strong thoroughness across multiple dimensions. It verified every component: loader output (1,885 candles, correct timestamps), OTT first-10 rows (correct EMA seeding and trend flips), backtest results (exact match on all 7 metrics), and cross-validation across all 4 parameter sets. It proactively caught the NaN JSON serialization bug before the user encountered it. When wiring the API, it ran npm install, verified the build passed, started the dev server, and confirmed the endpoint returned correct results. The model completed 7 turns with minimal user hand-holding — the user's prompts were mostly 'proceed with X' without needing to debug or correct the model's work. The only gap is the unfinished frontend, which was explicitly deferred by the user."
+		},
+		"overall_preference": {
+			"rating": 6,
+			"draft": "Model B is clearly preferred overall. It completed the entire Python backtesting engine (loader, OTT indicator, backtest loop, CLI, API wiring) with all results cross-validated to exact expected values, while Model A only completed the CSV loader. Both models showed strong technical understanding in their planning phases — Model A articulated a pluggable indicator architecture, Model B provided a detailed LEAN vs custom comparison — but Model B translated that understanding into complete, working code. Model B also demonstrated superior resilience: despite facing 229 rate-limit errors (vs Model A's 49), it completed substantially more work. Model A's PR #3 ultimately contains similar deliverables, but the recorded session transcript shows only loader.py being produced, suggesting additional work happened outside the captured interaction. Based on the recorded sessions, Model B delivered approximately 6x more functional output."
+		},
+		"instruction_following": {
+			"rating": 4,
+			"draft": "Both models followed explicit instructions well. Neither used cd, neither ran git without permission, and both stayed within the engine-backtest-platform/ directory. Both correctly checked Docker before deciding on the engine path. Model A paused when the user's message was cut off ('wait i wasnt finished') and waited for the complete instruction. Model B similarly asked 'Want me to run both now, or step through one at a time?' before proceeding. The slight edge to Model B (score 4 = slight preference/tie) comes from its handling of implicit instructions: when the user said 'show me the JSON output (just the metrics)', Model B showed only the metrics while also saving the full output to a file — a reasonable interpretation. Both models followed the 'do a detailed commit' instruction well, with Model B additionally opening a PR when asked. Overall, instruction following was strong for both models with no meaningful advantage to either."
+		},
+		"time_to_resolution": {
+			"rating": 6,
+			"draft": "Model B reached a working, cross-validated backtesting engine with live API endpoint significantly faster than Model A. In its main session, Model B completed Turns 1-7 (Docker check → API wiring) and had a production-ready backend. Model A completed only Turns 1-2 (Docker check → loader) before the session ended. Model B verified results against expected values on first run (96 trades, 17,663% return matched immediately), while Model A never reached the verification phase. Model B also completed its work in fewer effective user turns — most prompts resulted in correct, complete output on the first attempt. The only Model B inefficiency was writing output to a reports file before being asked, but this was a minor detour. Model A's two restart sessions (Sessions 1 and 2) contributed no additional progress."
+		},
+		"vibes": {
+			"rating": 5,
+			"draft": "Both models communicated clearly and professionally, but Model B's vibe was slightly more productive and confident. Model B's responses were action-oriented: 'Understood — building the backtest engine now at engine-backtest-platform/python/backtest.py, exact port of backtest.ts.' It verified its own work proactively ('Metrics are correct, but I spotted a JSON validity bug...') and gave clear status updates ('Both files are written but nothing has been run yet... Ready to verify when you give the word'). Model A showed strong technical reasoning ('LEAN puts a Docker spin-up in the middle of that loop every single time') but didn't get to demonstrate productive momentum. Model B's final message — 'Phase complete. Task #6 (frontend) stays pending until you bring the Figma design' — showed practical project management awareness. Both models avoided sycophancy and unnecessary verbosity, though Model B had slightly more markdown table formatting than needed."
+		},
+		"general_feedback": {
+			"rating": null,
+			"draft": "The most striking difference between the two models was productivity. Model B completed 7 turns of complex financial engineering work (CSV loading, OTT indicator porting, backtest engine, cross-validation, CLI, API integration) with all numbers matching expected results exactly. Model A, despite having the same starting prompt and task structure, only completed 2 turns (planning + loader). Both models faced significant rate limiting (49 errors for A, 229 for B), yet Model B pushed through and delivered substantially more. Both models demonstrated strong technical understanding of the OTT algorithm and made good architectural decisions (recommending custom Python over LEAN). Code quality was comparable for what was produced — clean, idiomatic, well-verified. Neither model exhibited serious behavioral issues: no instruction violations, no false claims of success, no destructive operations. The minor issues found were observational: some verbose markdown formatting in both models, and Model B creating an unrequested reports file. Model B's proactive bug-finding (NaN JSON serialization) was a positive differentiator. For a task requiring a senior-level financial engineering platform build, Model B delivered a substantially more complete and reliable experience."
+		}
+	},
+	"revisions": {
+		"model_a_task_success": "Model A completed the entire backtesting engine through seven turns. It got everything right on the first time. Using the data that I'd used prior in my own engine and in TradingView, the OTT indicator and the whole backtest and the entry point for the CLI, I asked it to take the TypeScript modules that I had built, the main one being the OTT indicator, and it used that as a precedent, and all of the tests were right on the money, to the decimal point. It tested the API endpoint and returned the correct results on the first try. There was a JSON serialization bug, but it proactively found it — it was causing a NaN, but it fixed it. And that fixed the error that the JSON parser was having. At the very end, I asked Model A to open a PR, and across four well-structured commits, it created six files. Though the front-end part of the task wasn't completed, after I saw the engine done so well, and because of the 429 errors from Anthropic, I decided to move the front end to a different project. The only thing that we did was we tied it in and tested it to the Next.js API. I also wanted it to come back with a full design for the candle chart and any other data that was required. It did a very good job. I was very impressed by the PR and the verboseness of the detail that it put in its PRs and in its commit messages. Very well done.",
+		"model_a_interaction_quality": "Model A followed the constraints that I put in the initial prompt explicitly. It very quickly checked if it could see the Docker daemon, which is just, can it hit it? That's all I needed to know, and that's all it said, \"Yeah, I can hit it.\" It paid attention to the not seeding into any directory because of that hook problem that Claude Dev causes. So it stayed in the root directory and did everything remote. It never ran Git without my permission and stayed within the engine backtest platform directory. When I accidentally hit the return key, my user message was cut off, and I've had models in the past take that as a command to do something. Right away I said, I can't remember what I said exactly, but I was like, I wasn't finished. But it recognized it, said, \"Yeah, it looks like your message was cut off.\" I've had that go wrong with other models, so that was really nice. When committing, like I said, it only committed when I asked it to, and it excluded unrelated files, like that next-env.d.ts file. It just used Next perfectly like it should. All of the work that it committed was very well done. There was one small issue — it was a little bit verbose in the initial planning response. After I said it could hit the daemon, then we got in a long discussion about whether to use the open source project or to just write our own Python. In that part, it did get really verbose. I mentioned before, it wrote like a three thousand plus character markdown. But I did explicitly ask for an algorithm walkthrough and architectural plan if we were going to do it custom. So it was kind of borderline, but I do think it was a little overwritten. But very well done.",
+		"model_a_code_quality": "Model A built four Python modules and modified the TypeScript API route that I needed to form my own backtesting engine. The OTT indicator, which was built first in TypeScript, the Python version was an exact port, an exact replica of it in Python. I mentioned this before, but I said, \"Okay, take this indicator, take these four strategies and the backtests that I ran,\" and I explicitly told it to replicate those, and it did. Every single test was exact, not off by one tenth, one decimal point, whether it was a percentage or a dollar amount. So that was very nice. I should get into the technical aspects of how it implemented something called next bar entry or equity tracking or drawdown calculation, but let's just say it got everything right. The CLI entry, which was in main.py, it accepted the correct arg parser flags and the correct defaults. All four strategy sets were cross-validated against the same data I did before, both in TradingView and on my own, and the numbers were exact, which confirmed first the understanding of what it was looking at in a different language and then how to build it in a new one. The API route was perfectly written and clean, and it was written to shell out Python with proper input validation. There was just one minor code quality issue, and that was the initial implementation emitted a NaN value in the JSON output. But it caught it and fixed it proactively. Overall, the code was well-structured and consistent, and I think it's production ready other than having to cover it with unit tests and integration tests. But overall, very well done.",
+		"model_a_thoroughness": "I can't overstate the thoroughness and the reasoning, how happy I was with it and how good it was across every dimension. It knew what it had to do even before I told it. I'm going to take everything step by step, which is what I do. Because after you build the loader, you gotta verify if the JSON loads right. After you build the OTT base module, you need to make sure that it's spitting out the same data. And then when you add the four strategies, you gotta test that. Like I said, everything was on the money. I said, \"Here's the TypeScript version. Build the Python version.\" And it didn't miss a beat, not once. It got every candle count right, every OTT validation parameter correct. Other than that, it proactively caught its NaN JSON serialization bug, but that's because it tested it right after it built it, so that was good. It caught it before it built the Next.js API call because that NaN would've broken the API. And then when it was ready, it tested the endpoint with the data and confirmed that the results were correct. Model A completed, I would say more than seven turns, but at least seven turns with minimal handholding. The only problem was not its fault, but that 429 error slowed it down immensely. I wish I had that model. I wish I knew what it was because it was such a joy to work with. I stopped the process right when we hit the partner API because I'm like, \"We can do that in another sprint.\" But I'd definitely give this one a five.",
+		"model_b_task_success": "",
+		"model_b_interaction_quality": "I can't say Model B followed instructions very well, because what it did is it made its own plan and then just started to execute it. I wanted things set up a very specific way because I needed it to match the structure that I architected for future backtesting of different indicators. But once I got it reined in and said, \"Look, we're gonna go through your checklist one by one, but you're out of order in a couple of them,\" it was fine. It was an extensive session — four hundred and eighty-eight messages in the main session.\n\nIt did follow the rules about not using CD to avoid the hook issue. It did run git commands without my permission, though, and it restricted file access to the engine backtest platform directory. When I asked it to commit, Model B said, and this is a quote, \"There are some preexisting staged modified files like .claude_dev_active and .claude-dev and .claude that aren't part of my work, so I'll leave those alone and only commit the engine backtest platform.\" So it asked before proceeding at appropriate points, but like I said, it wasn't stopping between each task. I had to go back and run all of the verification tests, and one of them was a little bit off. It used the tilde claiming they were exact, but they weren't — they were approximate. So we had to kind of back up.\n\nModel B had two hundred and twenty-nine rate limit errors in the main session. Not its fault. But it maintained clear communication and recovered once I got it reined in and came back from interruptions. There was no unnecessary praise and no instruction violations except for the \"stop between each turn\" rule and the one git commit. The interaction quality overall was not that enjoyable and not that productive. I'm gonna give it a three.",
+		"model_b_code_quality": "Model B constructed four Python modules and completed the entire backtesting engine. It had one hiccup with the four tests we did, but we fixed that. Those are the ones that plugged into the OTT indicator. Actually, the indicator was correct initially, but there was something wrong that caused a discrepancy — it was quickly fixed though. After that discussion, the ott.py was an exact port of the TypeScript equivalent.\n\nThe backtest engine correctly implemented the strategy I asked it to, which is next bar entry — when the trend changes, you buy or you sell on the next bar. This one's built a little different, and that's why this backtesting was necessary, because it works better than other ones I've seen. It did equity tracking good and drawdown calculations correct. The CLI, which is main.py, took in proper arg parse flags and worked with the defaults. All four tests, the EMA OTT tests, worked with the initial data and then with the cross-validation exactly as expected, and exactly as was done both with my first backtest I did with TypeScript and then against TradingView. It just had that one discrepancy on the first test, but it took care of it. So by doing that, the CLI validated that it had an exact algorithmic methodology and correctness that the TypeScript reference did.\n\nThe API route was clean, and it shelled out Python with proper input validation. The one code quality issue was the initial implementation emitted a NaN value in the JSON output, but it caught it and fixed it proactively, adding allow_nan=False to the serializer. The code was well-constructed and consistent. From a code style perspective, I think it was fine.",
+		"model_b_thoroughness": "Model B's thoroughness across all dimensions was great. It verified the component loading output with the right number of candles and correct timestamps. The very first test of the OTT indicator was a ten-row EMA OTT setting with the trend flips, and it got it right on the money the first time. The backtest results were exact except for that one discrepancy on the first try, but when we fixed that, everything was an exact match on all seven metrics. The cross-validation across all four parameter sets proactively caught the NaN JSON serialization. I had to help it understand why it wasn't exact on the first try — it was approximate. But after that, it worked perfectly.\n\nWhen tying into the API, it ran the correct npm install and verified the build pass. It started the dev server correctly and confirmed the endpoint returned the correct payload. Model B completed seven turns with minimal handholding. Now, that may sound good, but it specifically ignored my instructions to stop between each turn so we could validate that what was built was correct, and then commit, and then continue. It was thorough, but it just made a checklist and decided itself how it was gonna do it. I got a handle on it, and after that it was fine.\n\nThe other thing that it did which was not good was it would do git commands without my specific instructions when it was explicitly stated in my initial prompt not to do that. There was no gap — I mean, you could say the gap was the front end, but it wasn't. Because of all the delays, I'm the one who decided to defer the front end to another project. Now that we have everything worked out with the engine, I've got to decide which one to merge into main. They both essentially work exactly the same. Now that that works, I'll know how to design the D3 charts, which are in some ways the most important thing, especially when you're presenting to a client or a customer.",
+		"overall_preference": "",
+		"instruction_following": "",
+		"time_to_resolution": "",
+		"vibes": "",
+		"general_feedback": ""
+	},
+	"transcripts": {
+		"model_a_task_success": [
+			{
+				"id": "a2",
+				"label": "A-2: session_low_output",
+				"severity": "Major",
+				"text": "Model A only completed loader.py across the entire main session (128 messages). After committing: 'Done. Branch feature-a created off main, commit 2a23655 landed with just loader.py... Ready for the OTT indicator — how do you want it set up?' Session ended without producing OTT indicator, backtest, CLI, API, or frontend."
+			}
+		],
+		"model_a_interaction_quality": [
+			{
+				"id": "a1",
+				"label": "A-1: verbose_planning_response",
+				"severity": "Observation",
+				"text": "Initial response: '## Docker verdict\\n\\n**Docker daemon is running** — server v29.1.3...\\n## My read of the OTT algorithm (ott-indicator.ts)\\nThis is a **ratcheting trailing-stop** system. Four moving parts...' — 3000+ chars of markdown when a concise paragraph would suffice. However, user explicitly asked for this walkthrough."
+			}
+		],
+		"model_a_code_quality": [],
+		"model_a_thoroughness": [
+			{
+				"id": "a3",
+				"label": "A-3: no_output_verification",
+				"severity": "Minor",
+				"text": "Model A verified loader output ('1885 candles, timestamps parse cleanly to UTC dates starting 2021-01-01. First three closes (1.8421, 1.7999, 2.1779) match the raw CSV exactly.') but never reached backtest verification against expected results (96 trades, 17,663% return) because the session ended before those components were built."
+			}
+		],
+		"model_b_task_success": [],
+		"model_b_interaction_quality": [],
+		"model_b_code_quality": [
+			{
+				"id": "b4",
+				"label": "B-4: json_nan_missed_initially",
+				"severity": "Minor",
+				"text": "Initial main.py implementation emitted NaN in JSON signal field. Model B caught it on first run: 'Metrics are correct, but I spotted a JSON validity bug: \"signal\": NaN — that's not valid JSON and will break JSON.parse in the Next.js API. Fixing the serialization so None/NaN signals emit as null.'"
+			}
+		],
+		"model_b_thoroughness": [],
+		"overall_preference": [
+			{
+				"id": "a2",
+				"label": "A-2: session_low_output",
+				"severity": "Major",
+				"text": "Model A completed only Turn 2 (loader) vs Model B completing through Turn 7 (full engine + API). Despite Model B facing 229 rate-limit errors vs Model A's 49, Model B delivered ~6x more functional output."
+			}
+		],
+		"instruction_following": [],
+		"time_to_resolution": [],
+		"vibes": [
+			{
+				"id": "b1",
+				"label": "B-1: results_summary_table",
+				"severity": "Observation",
+				"text": "Model B: '## Results — exact match ✓\\n\\n| Metric | Expected | Got |\\n|---|---|---|\\n| Trades | 96 | **96** |...' — formatted summary table after verification. Useful but more verbose than necessary for a quick check."
+			}
+		],
+		"general_feedback": []
+	}
+}
+</script>
+
+<script>
+const DATA_KEY = 'merc_revision_tool_data';
+
+/* ===== CONSTANT FIELD DEFINITIONS (same for every Mercor task) ===== */
+
+const FIELD_DEFS = [
+  { section: 2, id: 'model_a_task_success', title: 'Model A \u2014 Task Success Comments', description: 'Reasoning for the Task Success rating with specific examples.' },
+  { section: 2, id: 'model_a_interaction_quality', title: 'Model A \u2014 Interaction Quality Comments', description: 'Reasoning for the Interaction Quality rating with specific examples.' },
+  { section: 2, id: 'model_a_code_quality', title: 'Model A \u2014 Code Quality Comments', description: 'Reasoning for the Code Quality rating with specific examples.' },
+  { section: 2, id: 'model_a_thoroughness', title: 'Model A \u2014 Thoroughness Comments', description: 'Reasoning for the Thoroughness rating with specific examples.' },
+  { section: 2, id: 'model_b_task_success', title: 'Model B \u2014 Task Success Comments', description: 'Reasoning for the Task Success rating with specific examples.' },
+  { section: 2, id: 'model_b_interaction_quality', title: 'Model B \u2014 Interaction Quality Comments', description: 'Reasoning for the Interaction Quality rating with specific examples.' },
+  { section: 2, id: 'model_b_code_quality', title: 'Model B \u2014 Code Quality Comments', description: 'Reasoning for the Code Quality rating with specific examples.' },
+  { section: 2, id: 'model_b_thoroughness', title: 'Model B \u2014 Thoroughness Comments', description: 'Reasoning for the Thoroughness rating with specific examples.' },
+  { section: 3, id: 'overall_preference', title: 'Overall Preference Feedback', description: 'Overall, which output did you like more? Why?' },
+  { section: 3, id: 'instruction_following', title: 'Instruction Following Feedback', description: 'Which model followed instructions better? Why?' },
+  { section: 3, id: 'time_to_resolution', title: 'Time to Resolution Feedback', description: 'Which model got you to the solution faster? Why?' },
+  { section: 3, id: 'vibes', title: 'Vibes Feedback', description: 'Which model had a more preferable vibe? Why?' },
+  { section: 4, id: 'general_feedback', title: 'General Feedback on Model Interaction', description: 'Holistic observations on how each model behaves, handles feedback, level of verbosity, or specific "quirks." Must reference specific models by name (A/B). This is comparative.' }
+];
+
+const SCALES = {
+  2: {
+    name: 'Individual Model Evaluation (1\u20135)',
+    rules: 'Rate each model independently. Minimum 3 sentences per comment field, citing specific examples or quotes from the transcript. Model A data never mentions Model B and vice versa.',
+    items: [
+      { label: 'Task Success', scale: '1 = Failed completely | 2 = Partial success with major issues | 3 = Completed but with notable problems | 4 = Successful with minor issues | 5 = Completely successful' },
+      { label: 'Interaction Quality', scale: '1 = Critical Blocker | 2 = Major issue, overcame with prompting | 3 = Periodic issues, not a major impediment | 4 = Only noticeable when paying close attention | 5 = No behavioral issues' },
+      { label: 'Code Quality', scale: '1 = Critically bad, unacceptable deviation | 2 = Mediocre, noticeably inconsistent | 3 = Adequate | 4 = Good, inline with codebase | 5 = Excellent, indistinguishable from codebase' },
+      { label: 'Thoroughness', scale: '1 = Failed most tasks, constant user input | 2 = Failed many tasks, frequent user input | 3 = Solved most tasks, occasional user input | 4 = Solved nearly all, minimal user input | 5 = Complete understanding, no user input needed' }
+    ]
+  },
+  3: {
+    name: 'Model Preference (Comparative, 0\u20137)',
+    rules: 'Rankings compare the two models against each other. Minimum 3 sentences per feedback field, citing specific examples from BOTH interactions. State what each model did separately, then state the pattern.',
+    items: [
+      { label: 'Scale', scale: '0 = Strong A | 1\u20132 = Moderate A | 3\u20134 = Slight/tie | 5\u20136 = Moderate B | 7 = Strong B' }
+    ]
+  },
+  4: {
+    name: 'General Feedback on Model Interaction',
+    rules: 'Holistic observations on how each model behaves, handles feedback, level of verbosity, or specific "quirks." Must reference specific models by name (A/B). This is comparative \u2014 state what each model did separately, then state the pattern.',
+    items: []
+  }
+};
+
+const SCALE_1_5 = { 1: 'Failed completely', 2: 'Partial success with major issues', 3: 'Completed but with notable problems', 4: 'Successful with minor issues', 5: 'Completely successful' };
+const SCALE_1_5_INTERACTION = { 1: 'Critical Blocker', 2: 'Major issue, overcame with prompting', 3: 'Periodic issues, not a major impediment', 4: 'Only noticeable when paying close attention', 5: 'No behavioral issues' };
+const SCALE_1_5_CODE = { 1: 'Critically bad, unacceptable deviation', 2: 'Mediocre, noticeably inconsistent', 3: 'Adequate', 4: 'Good, inline with codebase', 5: 'Excellent, indistinguishable from codebase' };
+const SCALE_1_5_THOROUGHNESS = { 1: 'Failed most tasks, constant user input', 2: 'Failed many tasks, frequent user input', 3: 'Solved most tasks, occasional user input', 4: 'Solved nearly all, minimal user input', 5: 'Complete understanding, no user input needed' };
+const SCALE_0_7 = { 0: 'Strong preference for A', 1: 'Moderate preference for A', 2: 'Moderate preference for A', 3: 'Slight preference / tie', 4: 'Slight preference / tie', 5: 'Moderate preference for B', 6: 'Moderate preference for B', 7: 'Strong preference for B' };
+
+const FIELD_SCALES = {
+  model_a_task_success: SCALE_1_5,
+  model_b_task_success: SCALE_1_5,
+  model_a_interaction_quality: SCALE_1_5_INTERACTION,
+  model_b_interaction_quality: SCALE_1_5_INTERACTION,
+  model_a_code_quality: SCALE_1_5_CODE,
+  model_b_code_quality: SCALE_1_5_CODE,
+  model_a_thoroughness: SCALE_1_5_THOROUGHNESS,
+  model_b_thoroughness: SCALE_1_5_THOROUGHNESS,
+  overall_preference: SCALE_0_7,
+  instruction_following: SCALE_0_7,
+  time_to_resolution: SCALE_0_7,
+  vibes: SCALE_0_7
+};
+
+/* ===== DATA LOADING ===== */
+
+function getData() {
+  const stored = localStorage.getItem(DATA_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch {}
+  }
+  const block = document.getElementById('task-data');
+  try { return JSON.parse(block.textContent); } catch {}
+  return { taskId: '', fields: {}, transcripts: {} };
+}
+
+function saveData(data) {
+  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+}
+
+function revKey() {
+  const data = getData();
+  return 'merc_revision_revisions_' + (data.taskId || 'default');
+}
+
+function ratingsKey() {
+  const data = getData();
+  return 'merc_revision_ratings_' + (data.taskId || 'default');
+}
+
+function loadRevisions() {
+  try {
+    const stored = localStorage.getItem(revKey());
+    if (stored) return JSON.parse(stored);
+    // Fall back to hardcoded revisions from JSON data block
+    const data = getData();
+    if (data.revisions) return { ...data.revisions };
+    return {};
+  } catch { return {}; }
+}
+
+function saveRevision(id, value) {
+  const r = loadRevisions();
+  r[id] = value;
+  localStorage.setItem(revKey(), JSON.stringify(r));
+  flashSaved();
+}
+
+function loadRatings() {
+  try { return JSON.parse(localStorage.getItem(ratingsKey()) || '{}'); } catch { return {}; }
+}
+
+function saveRating(id, value) {
+  const ratings = loadRatings();
+  ratings[id] = parseInt(value);
+  localStorage.setItem(ratingsKey(), JSON.stringify(ratings));
+  const select = document.getElementById('rating-sel-' + id);
+  const meaning = document.getElementById('rating-meaning-' + id);
+  select.className = 'rating-select rating-' + value;
+  const scale = FIELD_SCALES[id];
+  if (scale && meaning) meaning.textContent = scale[value] || '';
+  flashSaved();
+}
+
+function flashSaved() {
+  const el = document.getElementById('saved-indicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+function countWords(text) {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/* ===== IMPORT / EXPORT ===== */
+
+function showPasteOverlay() {
+  document.getElementById('paste-area').value = JSON.stringify(getData(), null, 2);
+  document.getElementById('paste-error').textContent = '';
+  document.getElementById('paste-overlay').classList.add('show');
+}
+
+function hidePasteOverlay() {
+  document.getElementById('paste-overlay').classList.remove('show');
+}
+
+function loadFromPaste() {
+  const raw = document.getElementById('paste-area').value;
+  try {
+    const data = JSON.parse(raw);
+    if (!data.fields || typeof data.fields !== 'object') {
+      document.getElementById('paste-error').textContent = 'JSON must have a "fields" object.';
+      return;
+    }
+    saveData(data);
+    hidePasteOverlay();
+    render();
+  } catch (e) {
+    document.getElementById('paste-error').textContent = 'Invalid JSON: ' + e.message;
+  }
+}
+
+function exportJSON() {
+  const data = getData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (data.taskId || 'revision-tool') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ===== ACTIONS ===== */
+
+function copyText(id) {
+  const textarea = document.getElementById('rev-' + id);
+  const btn = document.getElementById('btn-' + id);
+  if (!textarea.value.trim()) return;
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function clearField(id) {
+  const textarea = document.getElementById('rev-' + id);
+  textarea.value = '';
+  saveRevision(id, '');
+  updateWordCount(id);
+}
+
+function updateWordCount(id) {
+  const textarea = document.getElementById('rev-' + id);
+  const wc = document.getElementById('wc-' + id);
+  wc.textContent = countWords(textarea.value) + ' words';
+}
+
+function copyTranscript(text) {
+  navigator.clipboard.writeText(text);
+}
+
+function copyAllRevisions() {
+  const revisions = loadRevisions();
+  const lines = [];
+  FIELD_DEFS.forEach(f => {
+    const val = revisions[f.id] || '';
+    if (val.trim()) {
+      lines.push('## ' + f.title);
+      lines.push('');
+      lines.push(val.trim());
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+    }
+  });
+  if (lines.length === 0) { alert('No revisions to copy.'); return; }
+  navigator.clipboard.writeText(lines.join('\n'));
+  flashSaved();
+}
+
+function clearAllRevisions() {
+  if (!confirm('Clear ALL your revisions? This cannot be undone.')) return;
+  localStorage.removeItem(revKey());
+  document.querySelectorAll('textarea').forEach(t => { t.value = ''; });
+  document.querySelectorAll('[id^="wc-"]').forEach(w => { w.textContent = '0 words'; });
+}
+
+function sevClass(severity) {
+  if (severity === 'Major') return 'sev-major';
+  if (severity === 'Minor') return 'sev-minor';
+  return 'sev-observation';
+}
+
+/* ===== RENDER ===== */
+
+function render() {
+  const data = getData();
+  const fieldData = data.fields || {};
+  const transcriptData = data.transcripts || {};
+  const revisions = loadRevisions();
+  const savedRatings = loadRatings();
+
+  // Title
+  const title = data.taskId ? data.taskId + ' \u2014 Revision Tool' : 'Revision Tool';
+  document.getElementById('page-title').textContent = title;
+  document.title = title;
+
+  // Check if any data exists
+  const hasData = Object.keys(fieldData).some(k => {
+    const f = fieldData[k];
+    return f && (f.draft || f.rating);
+  });
+
+  if (!hasData) {
+    document.getElementById('app').innerHTML =
+      '<div class="empty-state">No data loaded.<br>Click <strong>Import JSON</strong> to paste field data, or have Claude Code fill the JSON block.<code>See merc__template--revision-tool--schema.json for the data shape.</code></div>';
+    return;
+  }
+
+  let html = '';
+  let lastSection = null;
+
+  FIELD_DEFS.forEach(f => {
+    const fd = fieldData[f.id] || {};
+    const draft = fd.draft || '';
+    const defaultRating = fd.rating;
+
+    // Section header
+    if (f.section !== lastSection) {
+      lastSection = f.section;
+      const s = SCALES[f.section];
+      html += '<div class="section-header">';
+      html += '<h2>Section ' + f.section + ': ' + s.name + '</h2>';
+      html += '<div class="rules">' + s.rules + '</div>';
+      if (s.items.length > 0) {
+        html += '<div class="scale-table">';
+        s.items.forEach(item => {
+          html += '<div><strong>' + item.label + ':</strong> ' + item.scale + '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    const savedVal = revisions[f.id] || '';
+    const wc = countWords(savedVal);
+    const scale = FIELD_SCALES[f.id];
+    const currentRating = savedRatings[f.id] !== undefined ? savedRatings[f.id] : defaultRating;
+
+    html += '<div class="field-card">';
+
+    // Title + rating selector
+    html += '<h3>' + f.title;
+    if (scale && currentRating !== null && currentRating !== undefined) {
+      const isPreference = f.section === 3;
+      const minVal = isPreference ? 0 : 1;
+      const maxVal = isPreference ? 7 : 5;
+      html += '<span class="rating-select-wrap">';
+      html += '<select id="rating-sel-' + f.id + '" class="rating-select rating-' + currentRating + '" onchange="saveRating(\'' + f.id + '\', this.value)">';
+      for (let i = minVal; i <= maxVal; i++) {
+        html += '<option value="' + i + '"' + (i === currentRating ? ' selected' : '') + '>' + i + '</option>';
+      }
+      html += '</select>';
+      html += '<span id="rating-meaning-' + f.id + '" class="rating-meaning">' + (scale[currentRating] || '') + '</span>';
+      html += '</span>';
+    }
+    html += '</h3>';
+    html += '<div class="field-meta">' + f.description + '</div>';
+
+    // Claude's draft (full width)
+    if (draft) {
+      html += '<div class="draft-label">Claude Draft</div>';
+      html += '<div class="draft-content">' + escapeHtml(draft) + '</div>';
+    }
+
+    // Revision textarea
+    html += '<div class="draft-label">Your Final Revision</div>';
+    html += '<div class="revision-area">';
+    html += '<textarea id="rev-' + f.id + '" placeholder="Write your final version here..." oninput="saveRevision(\'' + f.id + '\', this.value); updateWordCount(\'' + f.id + '\')">' + escapeHtml(savedVal) + '</textarea>';
+    html += '<div class="btn-row">';
+    html += '<span id="wc-' + f.id + '" class="word-count">' + wc + ' words</span>';
+    html += '<button class="btn-clear-field" onclick="clearField(\'' + f.id + '\')">Clear</button>';
+    html += '<button class="btn-copy" id="btn-' + f.id + '" onclick="copyText(\'' + f.id + '\')">Copy</button>';
+    html += '</div>';
+    html += '</div>';
+
+    // Transcript references
+    const refs = transcriptData[f.id];
+    if (refs && refs.length > 0) {
+      html += '<div class="transcript-section">';
+      html += '<div class="draft-label">Transcript References</div>';
+      refs.forEach(r => {
+        html += '<div class="transcript-item">';
+        html += '<button class="btn-copy-transcript" onclick="copyTranscript(`' + r.text.replace(/`/g, '\\`') + '`)">Copy</button>';
+        html += '<div class="transcript-header">';
+        html += '<span class="issue-label">' + escapeHtml(r.label) + '</span>';
+        html += '<span class="badge-severity ' + sevClass(r.severity) + '">' + r.severity + '</span>';
+        html += '</div>';
+        html += '<div class="transcript-text">' + escapeHtml(r.text) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+  });
+
+  document.getElementById('app').innerHTML = html;
+}
+
+render();
+</script>
+
+</body>
+</html>

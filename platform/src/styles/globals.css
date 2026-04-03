@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	font-family: var(--font-inter), sans-serif;
+	@apply text-foreground;
+}
+
+@layer utilities {
+	.text-balance {
+		text-wrap: balance;
+	}
+}
+
+@layer base {
+	:root {
+		--sage-50: hsl(120 5% 96%); /* #f4f5f4 */
+		--sage-100: hsl(84 10% 90%); /* #e6e8e3 */
+		--sage-200: hsl(82 8% 80%); /* #ced1c9 */
+		--sage-300: hsl(92 8% 67%); /* #aab1a4 */
+		--sage-400: hsl(93 7% 51%); /* #808a78 */
+		--sage-500: hsl(95 9% 39%); /* #636e5b */
+		--sage-600: hsl(99 11% 30%); /* #4b5645 */
+		--sage-700: hsl(100 10% 24%); /* #3c4438 */
+		--sage-800: hsl(100 9% 20%); /* #31372e */
+		--sage-900: hsl(97 10% 16%); /* #292e26 */
+		--sage-950: hsl(105 9% 9%); /* #161915 */
+
+		--hotpink-50: hsl(351 100% 97%); /* #fff1f3 */
+		--hotpink-100: hsl(350 100% 94%); /* #ffe0e5 */
+		--hotpink-200: hsl(350 100% 89%); /* #ffc5cf */
+		--hotpink-300: hsl(350 100% 81%); /* #ff9dad */
+		--hotpink-400: hsl(350 100% 70%); /* #ff657f */
+		--hotpink-500: hsl(350 99% 60%); /* #fe3557 */
+		--hotpink-600: hsl(350 85% 51%); /* #ec163a */
+		--hotpink-700: hsl(350 87% 42%); /* #c70e2d */
+		--hotpink-800: hsl(350 82% 35%); /* #a41029 */
+		--hotpink-900: hsl(350 74% 31%); /* #881427 */
+		--hotpink-950: hsl(350 88% 16%); /* #4d0511 */
+
+		--cblue-50x: hsl(206 47% 97%); /* #f4f8fb */
+		--cblue-100: hsl(206 44% 94%); /* #e8f0f6 */
+		--cblue-200: hsl(203 41% 86%); /* #cddfea */
+		--cblue-300: hsl(202 41% 74%); /* #a1c4d8 */
+		--cblue-400: hsl(201 41% 60%); /* #6ea5c2 */
+		--cblue-500: hsl(200 38% 48%); /* #4c8bab */
+		--cblue-600: hsl(203 43% 37%); /* #366886 */
+		--cblue-700: hsl(203 41% 32%); /* #305a74 */
+		--cblue-800: hsl(203 39% 27%); /* #2b4c61 */
+		--cblue-900: hsl(203 34% 24%); /* #284252 */
+		--cblue-950: hsl(207 36% 16%); /* #1a2a37 */
+
+		--background: hsl(0 0% 98%); /* #fafafa */
+		--foreground: hsl(0 0% 3.9%); /* #0a0a0a */
+		--card: hsl(0 0% 100%); /* #ffffff */
+		--card-foreground: hsl(0 0% 3.9%); /* #0a0a0a */
+		--popover: hsl(0 0% 100%); /* #ffffff */
+		--popover-foreground: hsl(0 0% 3.9%); /* #0a0a0a */
+		--primary: var(--hotpink-500);
+		--primary-foreground: hsl(0 0% 100%); /* #ffffff */
+		--secondary: var(--sage-500);
+		--secondary-foreground: hsl(0 0% 98%); /* #fafafa */
+		--muted: hsl(0 0% 96.1%); /* #f5f5f5 */
+		--muted-foreground: hsl(0 0% 45.1%); /* #737373 */
+		--accent: hsl(0 0% 96.1%); /* #f5f5f5 */
+		--accent-foreground: hsl(0 0% 9%); /* #171717 */
+		--destructive: var(--hotpink-700);
+		--destructive-foreground: hsl(0 0% 98%); /* #fafafa */
+		--success: hsl(142 71% 45%); /* #22c55e */
+		--success-foreground: hsl(0 0% 100%); /* #ffffff */
+		--warning: hsl(48 96% 53%); /* #eab308 */
+		--warning-foreground: hsl(0 0% 100%); /* #ffffff */
+		--border: hsl(0 0% 89.8%); /* #e5e5e5 */
+		--input: hsl(0 0% 89.8%); /* #e5e5e5 */
+		--ring: var(--hotpink-500);
+		--overlay: hsl(0 0% 0%); /* #000000 */
+		--tooltip: hsl(0 0% 3.9%); /* #0a0a0a */
+		--tooltip-foreground: hsl(0 0% 98%); /* #fafafa */
+		--background-sidenav: var(--sage-100);
+		--sidebar-header: hsl(0 0% 83.9%); /* ~#d6d6d6 */
+		--chart-1: hsl(12 76% 61%); /* #f07a5d */
+		--chart-2: hsl(173 58% 39%); /* #2a9d8f */
+		--chart-3: hsl(197 37% 24%); /* #264653 */
+		--chart-4: hsl(43 74% 66%); /* #f4a261 */
+		--chart-5: hsl(27 87% 67%); /* #e9c46a */
+		--radius: 0.5rem;
+	}
+	.dark {
+		--background: hsl(0 0% 3.9%); /* #0a0a0a */
+		--foreground: hsl(0 0% 98%); /* #fafafa */
+		--card: hsl(0 0% 3.9%); /* #0a0a0a */
+		--card-foreground: hsl(0 0% 98%); /* #fafafa */
+		--popover: hsl(0 0% 3.9%); /* #0a0a0a */
+		--popover-foreground: hsl(0 0% 98%); /* #fafafa */
+		--primary: hsl(0 0% 98%); /* #fafafa */
+		--primary-foreground: hsl(0 0% 9%); /* #171717 */
+		--secondary: hsl(0 0% 14.9%); /* #262626 */
+		--secondary-foreground: hsl(0 0% 98%); /* #fafafa */
+		--muted: hsl(0 0% 14.9%); /* #262626 */
+		--muted-foreground: hsl(0 0% 63.9%); /* #a3a3a3 */
+		--accent: hsl(0 0% 14.9%); /* #262626 */
+		--accent-foreground: hsl(0 0% 98%); /* #fafafa */
+		--destructive: hsl(0 62.8% 30.6%); /* #7f1d1d */
+		--destructive-foreground: hsl(0 0% 98%); /* #fafafa */
+		--success: hsl(142 71% 45%); /* #22c55e */
+		--success-foreground: hsl(0 0% 100%); /* #ffffff */
+		--warning: hsl(48 96% 53%); /* #eab308 */
+		--warning-foreground: hsl(0 0% 100%); /* #ffffff */
+		--border: hsl(0 0% 14.9%); /* #262626 */
+		--input: hsl(0 0% 14.9%); /* #262626 */
+		--ring: hsl(0 0% 83.1%); /* #d4d4d4 */
+		--overlay: hsl(0 0% 0%); /* #000000 */
+		--tooltip: hsl(0 0% 98%); /* #fafafa */
+		--tooltip-foreground: hsl(0 0% 3.9%); /* #0a0a0a */
+		--background-sidenav: hsl(0 0% 7%); /* #121212 */
+		--sidebar-header: hsl(0 0% 14.9%); /* #262626 */
+		--chart-1: hsl(220 70% 50%); /* #3b82f6 */
+		--chart-2: hsl(160 60% 45%); /* #10b981 */
+		--chart-3: hsl(30 80% 55%); /* #f59e0b */
+		--chart-4: hsl(280 65% 60%); /* #a855f7 */
+		--chart-5: hsl(340 75% 55%); /* #ec4899 */
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+a {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.parent {
+	width: 100%;
+}
+
+input,
+select,
+textarea {
+	box-sizing: border-box !important;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+a {
+	text-decoration: none;
+}
+
+/* React-Markdown overrides */
+
+#chat_bubbles {
+	@apply whitespace-normal text-sm leading-relaxed;
+}
+
+#chat_bubbles p,
+#chat_bubbles li,
+#chat_bubbles ul,
+#chat_bubbles ol,
+#chat_bubbles pre,
+#chat_bubbles blockquote,
+#chat_bubbles h1,
+#chat_bubbles h2,
+#chat_bubbles h3,
+#chat_bubbles h4,
+#chat_bubbles h5,
+#chat_bubbles h6 {
+	margin-top: 12px;
+	margin-bottom: 12px;
+}
+
+#chat_bubbles h1,
+#chat_bubbles h2,
+#chat_bubbles h3,
+#chat_bubbles h4,
+#chat_bubbles h5,
+#chat_bubbles h6 {
+	font-weight: bold;
+}
+
+#chat_bubbles ul,
+#chat_bubbles ol {
+	padding-left: 1.25rem;
+	list-style: initial;
+}
+
+#chat_bubbles code {
+	padding: 0 2px;
+	border-radius: 4px;
+	font-size: 13px;
+}
+
+#chat_bubbles pre {
+	padding: 2px;
+	border-radius: 6px;
+	overflow-x: auto;
+	margin: 2px 0;
+}

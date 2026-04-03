@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mercor Sprint — <span class="placeholder task-id-text">{TASK_ID}</span></title>
+	<style>
+		html {
+			font-size: 16px;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+			background-color: #0d1117;
+			color: #c9d1d9;
+			line-height: 1.6;
+			padding: 1.5rem;
+			max-width: 56.25rem;
+			margin: 0 auto;
+		}
+
+		h1 {
+			color: #f0f6fc;
+			font-size: 1.8em;
+			margin-bottom: 1rem;
+			padding-bottom: 0.75rem;
+			border-bottom: 0.0625rem solid #30363d;
+		}
+
+		h2 {
+			color: #f0f6fc;
+			font-size: 1.4em;
+			margin-top: 2rem;
+			margin-bottom: 1rem;
+		}
+
+		h3 {
+			color: #f0f6fc;
+			font-size: 1.1em;
+			margin-top: 1.5rem;
+			margin-bottom: 0.75rem;
+		}
+
+		hr {
+			border: none;
+			border-top: 0.0625rem solid #30363d;
+			margin: 1.5rem 0;
+		}
+
+		p {
+			margin-bottom: 0.75rem;
+		}
+
+		a {
+			color: #58a6ff;
+		}
+
+		code {
+			background-color: #161b22;
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+			font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+			font-size: 0.9em;
+			color: #79c0ff;
+		}
+
+		/* Input fields */
+		.input-group {
+			margin-bottom: 1rem;
+		}
+
+		.input-group label {
+			display: block;
+			font-weight: 600;
+			font-size: 0.875rem;
+			margin-bottom: 0.375rem;
+			color: #8b949e;
+		}
+
+		.input-group input,
+		.input-group select {
+			padding: 0.625rem 0.875rem;
+			border: 0.0625rem solid #30363d;
+			border-radius: 0.375rem;
+			font-size: 0.875rem;
+			width: 100%;
+			max-width: 25rem;
+			background-color: #0d1117;
+			color: #c9d1d9;
+		}
+
+		.input-group input:focus,
+		.input-group select:focus {
+			outline: none;
+			border-color: #58a6ff;
+			box-shadow: 0 0 0 0.1875rem rgba(88, 166, 255, 0.2);
+		}
+
+		/* Buttons */
+		.btn {
+			border: none;
+			padding: 0.625rem 1.25rem;
+			border-radius: 0.375rem;
+			font-weight: 600;
+			font-size: 0.875rem;
+			cursor: pointer;
+			transition: opacity 0.2s;
+		}
+
+		.btn:hover {
+			opacity: 0.9;
+		}
+
+		.btn-primary {
+			background-color: #238636;
+			color: #ffffff;
+		}
+
+		.btn-secondary {
+			background-color: #1f6feb;
+			color: #ffffff;
+			border: 0.0625rem solid #388bfd;
+		}
+
+		.btn-danger {
+			background-color: #da3633;
+			color: #ffffff;
+		}
+
+		.btn-copy {
+			background-color: #1f6feb;
+			color: #ffffff;
+			padding: 0.375rem 0.75rem;
+			font-size: 0.75rem;
+			border: 0.0625rem solid #388bfd;
+		}
+
+		/* Code blocks */
+		.code-block-wrapper {
+			position: relative;
+			margin: 0.75rem 0;
+		}
+
+		.code-block {
+			background-color: #161b22;
+			border: 0.0625rem solid #30363d;
+			border-radius: 0.375rem;
+			padding: 1rem;
+			padding-right: 5rem;
+			overflow-x: auto;
+			font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+			font-size: 0.8125rem;
+			color: #c9d1d9;
+			white-space: pre-wrap;
+			word-break: break-all;
+		}
+
+		.code-block-wrapper .btn-copy {
+			position: absolute;
+			top: 0.5rem;
+			right: 0.5rem;
+		}
+
+		/* Section boxes */
+		.section-box {
+			background-color: #161b22;
+			border: 0.0625rem solid #30363d;
+			border-radius: 0.5rem;
+			padding: 1.25rem;
+			margin: 1rem 0;
+		}
+
+		.section-box-header {
+			color: #8b949e;
+			font-size: 0.75rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.03125rem;
+			margin-bottom: 0.75rem;
+		}
+
+		/* Prompt block */
+		.prompt-block {
+			background-color: #0d1117;
+			border: 0.0625rem solid #30363d;
+			border-left: 0.1875rem solid #58a6ff;
+			border-radius: 0.375rem;
+			padding: 1rem;
+			padding-right: 5rem;
+			margin: 0.75rem 0;
+			font-size: 0.875rem;
+			white-space: pre-wrap;
+			line-height: 1.5;
+			position: relative;
+		}
+
+		.prompt-block .btn-copy {
+			position: absolute;
+			top: 0.5rem;
+			right: 0.5rem;
+		}
+
+		/* Editable prompt */
+		.prompt-editable {
+			background-color: #0d1117;
+			border: 0.0625rem solid #30363d;
+			border-left: 0.1875rem solid #d29922;
+			border-radius: 0.375rem;
+			padding: 1rem;
+			padding-right: 5rem;
+			margin: 0.75rem 0;
+			font-size: 0.875rem;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			white-space: pre-wrap;
+			line-height: 1.5;
+			position: relative;
+			min-height: 4rem;
+			color: #c9d1d9;
+			outline: none;
+		}
+
+		.prompt-editable:focus {
+			border-color: #d29922;
+			box-shadow: 0 0 0 0.1875rem rgba(210, 153, 34, 0.2);
+		}
+
+		.prompt-editable .btn-copy {
+			position: absolute;
+			top: 0.5rem;
+			right: 0.5rem;
+		}
+
+		/* Placeholder styling */
+		.placeholder {
+			color: #f85149;
+			font-weight: 600;
+		}
+
+		/* Turn section */
+		.turn-section {
+			background-color: #161b22;
+			border: 0.0625rem solid #30363d;
+			border-radius: 0.5rem;
+			padding: 1.25rem;
+			margin: 1.5rem 0;
+		}
+
+		.turn-section h3 {
+			margin-top: 0;
+		}
+
+		/* Timer */
+		.timer-section {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			background-color: #161b22;
+			border: 0.0625rem solid #30363d;
+			border-radius: 0.5rem;
+			padding: 1.25rem 1.5rem;
+			margin: 1.5rem 0;
+		}
+
+		.timer-display {
+			font-size: 3rem;
+			font-weight: 700;
+			font-family: 'SF Mono', Consolas, monospace;
+			color: #f0f6fc;
+		}
+
+		.timer-display.warning {
+			color: #d29922;
+		}
+
+		.timer-display.danger {
+			color: #f85149;
+		}
+
+		.btn-start {
+			font-size: 1.125rem;
+			padding: 0.875rem 1.75rem;
+		}
+
+		/* Status badge */
+		.status-badge {
+			display: inline-block;
+			padding: 0.25rem 0.625rem;
+			border-radius: 1rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+
+		.status-badge.ready {
+			background-color: rgba(35, 134, 54, 0.2);
+			color: #3fb950;
+			border: 0.0625rem solid #238636;
+		}
+
+		.status-badge.active {
+			background-color: rgba(210, 153, 34, 0.2);
+			color: #d29922;
+			border: 0.0625rem solid #d29922;
+		}
+
+		/* Clear form section */
+		.clear-form-section {
+			margin-top: 2.5rem;
+			padding-top: 1.5rem;
+			border-top: 0.0625rem solid #30363d;
+		}
+
+		/* Toast notification */
+		.toast {
+			position: fixed;
+			bottom: 1.5rem;
+			right: 1.5rem;
+			background-color: #238636;
+			color: white;
+			padding: 0.75rem 1.25rem;
+			border-radius: 0.375rem;
+			font-size: 0.875rem;
+			font-weight: 500;
+			opacity: 0;
+			transform: translateY(0.625rem);
+			transition: opacity 0.3s, transform 0.3s;
+			z-index: 1000;
+		}
+
+		.toast.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		/* Hidden content */
+		.hidden-content {
+			display: none;
+		}
+
+		.hidden-content.visible {
+			display: block;
+		}
+
+		/* Checklist */
+		.checklist {
+			list-style: none;
+			padding: 0;
+		}
+
+		.checklist li {
+			padding: 0.375rem 0;
+			font-size: 0.875rem;
+		}
+
+		.checklist li::before {
+			content: '☐ ';
+			color: #8b949e;
+		}
+
+		.checklist li.done::before {
+			content: '☑ ';
+			color: #3fb950;
+		}
+
+		.note {
+			background-color: rgba(210, 153, 34, 0.1);
+			border: 0.0625rem solid #d29922;
+			border-radius: 0.375rem;
+			padding: 0.75rem 1rem;
+			font-size: 0.8125rem;
+			margin: 0.75rem 0;
+		}
+	</style>
+</head>
+<body>
+	<h1>Mercor Sprint — <span class="task-id-text placeholder">{TASK_ID}</span></h1>
+
+	<hr>
+
+	<!-- ==================== PART 1: TASK CONFIG ==================== -->
+	<h2>Part 1: Task Config</h2>
+
+	<div class="section-box">
+		<div class="section-box-header">Task Setup</div>
+
+		<div class="input-group">
+			<label for="taskId">TASK_ID (number only, e.g. 556)</label>
+			<input type="text" id="taskId" placeholder="e.g., 556">
+		</div>
+
+		<div class="input-group">
+			<label for="repoUrl">REPO_URL (HTTPS — Mercor repos require HTTPS)</label>
+			<input type="text" id="repoUrl" placeholder="e.g., https://github.com/Mercor-Evaluations/task-xxxxx.git">
+		</div>
+
+		<div class="input-group">
+			<label for="fullName">YOUR_NAME</label>
+			<input type="text" id="fullName" placeholder="e.g., Flavio Espinoza" value="Flavio Espinoza">
+		</div>
+
+		<button class="btn btn-primary" id="btnGenerate">Generate All Commands</button>
+	</div>
+
+	<hr>
+
+	<!-- ==================== PART 2: STARTUP SEQUENCE ==================== -->
+	<h2>Part 2: Startup Sequence</h2>
+
+	<h3>Step 1 — Create Task Directory + Copy Prompts</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">mkdir -p ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span></pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">for f in ~/Portfolio/merc-task/_tasks/TASK__sol-bot--*.md; do cp "$f" ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span>/TASK_<span class="task-id-raw">{TASK_ID}</span>__sol-bot--"$(basename "$f" | sed 's/^TASK__sol-bot--//')"; done</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">cd ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span></pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="note"><code>task-setup.sh</code> copies <code>init.py</code> from <code>scripts/</code> automatically. If Mercor releases a new version, update <code>scripts/init.py</code>.</div>
+
+	<h3>Step 2 — Run init.py</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">python3 init.py</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<p>When prompted, enter:</p>
+	<div class="section-box">
+		<p><strong>Your name:</strong></p>
+		<div class="code-block-wrapper">
+			<pre class="code-block"><span class="full-name">Flavio Espinoza</span></pre>
+			<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+		</div>
+
+		<p><strong>TASK_ID:</strong></p>
+		<div class="code-block-wrapper">
+			<pre class="code-block">TASK_<span class="task-id-raw">{TASK_ID}</span></pre>
+			<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+		</div>
+
+		<p><strong>Repo URL:</strong></p>
+		<div class="code-block-wrapper">
+			<pre class="code-block"><span class="repo-url placeholder">{REPO_URL}</span></pre>
+			<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+		</div>
+	</div>
+
+	<h3>Step 3 — Launch Model A</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">cd ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span>/model_a</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">unset ANTHROPIC_API_KEY</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">claude</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="note">Login: Select option 2 — "Anthropic Console account (API usage billing)"</div>
+
+	<h3>Step 4 — Launch Model B (new terminal window)</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">cd ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span>/model_b</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">unset ANTHROPIC_API_KEY</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">claude</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<h3>Step 5 — Verify Logs</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">ls ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span>/logs/model_a</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">ls ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span>/logs/model_b</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<hr>
+
+	<!-- ==================== PART 3: TIMER + OPENING PROMPT ==================== -->
+	<h2>Part 3: Sprint</h2>
+
+	<div class="timer-section">
+		<button class="btn btn-danger btn-start" id="btnStartTimer">START TIMER — 95 MIN</button>
+		<span class="timer-display" id="timerDisplay">95:00</span>
+	</div>
+
+	<div class="hidden-content" id="hiddenContent">
+
+	<h3>Opening Prompt (same for Model A and Model B)</h3>
+	<p>Paste your humanized opening prompt below. It saves automatically.</p>
+	<div style="position: relative;">
+		<div class="prompt-editable" id="openingPrompt" contenteditable="true" data-placeholder="Paste your humanized opening prompt here..."></div>
+		<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('openingPrompt')">Copy</button>
+	</div>
+
+	<hr>
+
+	<!-- ==================== TURNS ==================== -->
+	<h2>Turns</h2>
+
+	<!-- TURN 1 -->
+	<div class="turn-section">
+		<h3>Turn 1</h3>
+		<p><strong>Prompt (from Gemini, humanized):</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn1Prompt" contenteditable="true" data-placeholder="Paste humanized Turn 1 prompt here..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn1Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<!-- TURN 2 -->
+	<div class="turn-section">
+		<h3>Turn 2</h3>
+		<p><strong>Prompt:</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn2Prompt" contenteditable="true" data-placeholder="Paste humanized Turn 2 prompt here..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn2Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<!-- TURN 3 -->
+	<div class="turn-section">
+		<h3>Turn 3</h3>
+		<p><strong>Prompt:</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn3Prompt" contenteditable="true" data-placeholder="Paste humanized Turn 3 prompt here..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn3Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<!-- TURN 4 -->
+	<div class="turn-section">
+		<h3>Turn 4</h3>
+		<p><strong>Prompt:</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn4Prompt" contenteditable="true" data-placeholder="Paste humanized Turn 4 prompt here..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn4Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<!-- TURN 5 -->
+	<div class="turn-section">
+		<h3>Turn 5</h3>
+		<p><strong>Prompt:</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn5Prompt" contenteditable="true" data-placeholder="Paste humanized Turn 5 prompt here..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn5Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<!-- EXTRA TURNS -->
+	<div class="turn-section">
+		<h3>Turn 6+</h3>
+		<p><strong>Prompt:</strong></p>
+		<div style="position: relative;">
+			<div class="prompt-editable" id="turn6Prompt" contenteditable="true" data-placeholder="Extra turns as needed..."></div>
+			<button class="btn btn-copy" style="position: absolute; top: 0.5rem; right: 0.5rem;" onclick="copyEditable('turn6Prompt')">Copy</button>
+		</div>
+	</div>
+
+	<hr>
+
+	<!-- ==================== END SESSION ==================== -->
+	<h2>End Session</h2>
+
+	<h3>Step 1 — Exit Both Models</h3>
+	<p>Type this in EACH model terminal:</p>
+	<div class="code-block-wrapper">
+		<pre class="code-block">/exit</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="note">End BOTH sessions before closing ANY terminal. Metadata won't track if you close the terminal without <code>/exit</code>.</div>
+
+	<h3>Step 2 — Submit</h3>
+	<div class="code-block-wrapper">
+		<pre class="code-block">cd ~/Portfolio/merc-task/merc-<span class="task-id">TASK_{TASK_ID}</span></pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	<div class="code-block-wrapper">
+		<pre class="code-block">python3 submit.py</pre>
+		<button class="btn btn-copy" onclick="copyCode(this)">Copy</button>
+	</div>
+
+	</div><!-- /hiddenContent -->
+
+	<hr>
+
+	<div class="clear-form-section">
+		<button class="btn btn-secondary" id="btnClearForm">Clear Form + Reset</button>
+	</div>
+
+	<div class="toast" id="toast">Copied to clipboard!</div>
+
+	<script>
+		// DOM Elements
+		const taskIdInput = document.getElementById('taskId')
+		const repoUrlInput = document.getElementById('repoUrl')
+		const fullNameInput = document.getElementById('fullName')
+		const toast = document.getElementById('toast')
+
+		const STORAGE_KEY = 'merc-sprint'
+
+		// Generate All Commands
+		document.getElementById('btnGenerate').addEventListener('click', () => {
+			const taskId = taskIdInput.value.trim()
+			const repoUrl = repoUrlInput.value.trim()
+			const fullName = fullNameInput.value.trim()
+
+			if (!taskId) {
+				showToast('Please fill in TASK_ID')
+				return
+			}
+
+			// Update title
+			document.title = `Mercor Sprint — TASK_${taskId}`
+
+			// Fill task ID placeholders
+			document.querySelectorAll('.task-id').forEach(el => {
+				el.textContent = `TASK_${taskId}`
+				el.classList.remove('placeholder')
+			})
+
+			document.querySelectorAll('.task-id-raw').forEach(el => {
+				el.textContent = taskId
+				el.classList.remove('placeholder')
+			})
+
+			document.querySelectorAll('.task-id-text').forEach(el => {
+				el.textContent = `TASK_${taskId}`
+				el.classList.remove('placeholder')
+			})
+
+			// Fill repo URL
+			if (repoUrl) {
+				document.querySelectorAll('.repo-url').forEach(el => {
+					el.textContent = repoUrl
+					el.classList.remove('placeholder')
+				})
+			}
+
+			// Fill name
+			if (fullName) {
+				document.querySelectorAll('.full-name').forEach(el => {
+					el.textContent = fullName
+				})
+			}
+
+			saveState()
+			showToast('Commands generated!')
+		})
+
+		// --- localStorage persistence ---
+		function saveState() {
+			const state = {
+				taskId: taskIdInput.value.trim(),
+				repoUrl: repoUrlInput.value.trim(),
+				fullName: fullNameInput.value.trim(),
+				openingPrompt: document.getElementById('openingPrompt').innerHTML,
+				turn1Prompt: document.getElementById('turn1Prompt').innerHTML,
+				turn2Prompt: document.getElementById('turn2Prompt').innerHTML,
+				turn3Prompt: document.getElementById('turn3Prompt').innerHTML,
+				turn4Prompt: document.getElementById('turn4Prompt').innerHTML,
+				turn5Prompt: document.getElementById('turn5Prompt').innerHTML,
+				turn6Prompt: document.getElementById('turn6Prompt').innerHTML,
+				timerStarted: timerStarted,
+				timerStartTime: timerStartTime
+			}
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+		}
+
+		function restoreState() {
+			const raw = localStorage.getItem(STORAGE_KEY)
+			if (!raw) return
+
+			try {
+				const state = JSON.parse(raw)
+
+				if (state.taskId) {
+					taskIdInput.value = state.taskId
+				}
+				if (state.repoUrl) {
+					repoUrlInput.value = state.repoUrl
+				}
+				if (state.fullName) {
+					fullNameInput.value = state.fullName
+				}
+
+				// Restore prompts
+				if (state.openingPrompt) document.getElementById('openingPrompt').innerHTML = state.openingPrompt
+				if (state.turn1Prompt) document.getElementById('turn1Prompt').innerHTML = state.turn1Prompt
+				if (state.turn2Prompt) document.getElementById('turn2Prompt').innerHTML = state.turn2Prompt
+				if (state.turn3Prompt) document.getElementById('turn3Prompt').innerHTML = state.turn3Prompt
+				if (state.turn4Prompt) document.getElementById('turn4Prompt').innerHTML = state.turn4Prompt
+				if (state.turn5Prompt) document.getElementById('turn5Prompt').innerHTML = state.turn5Prompt
+				if (state.turn6Prompt) document.getElementById('turn6Prompt').innerHTML = state.turn6Prompt
+
+				// Re-generate commands if we have task ID
+				if (state.taskId) {
+					document.getElementById('btnGenerate').click()
+				}
+
+				// Restore timer
+				if (state.timerStarted && state.timerStartTime) {
+					timerStarted = true
+					timerStartTime = state.timerStartTime
+					document.getElementById('hiddenContent').classList.add('visible')
+					btnStartTimer.disabled = true
+					btnStartTimer.textContent = 'RUNNING...'
+					startTimerInterval()
+				}
+			} catch (e) {
+				// corrupted state, ignore
+			}
+		}
+
+		// Auto-save prompts on edit
+		document.querySelectorAll('.prompt-editable').forEach(el => {
+			el.addEventListener('input', () => {
+				saveState()
+			})
+		})
+
+		// --- Timer (95 min countdown) ---
+		let timerInterval = null
+		let timerStarted = false
+		let timerStartTime = null
+		const TIMER_DURATION = 95 * 60 // 95 minutes in seconds
+		const timerDisplay = document.getElementById('timerDisplay')
+		const btnStartTimer = document.getElementById('btnStartTimer')
+
+		function getSecondsRemaining() {
+			if (!timerStartTime) return TIMER_DURATION
+			const elapsed = Math.floor((Date.now() - timerStartTime) / 1000)
+			return Math.max(0, TIMER_DURATION - elapsed)
+		}
+
+		function updateTimerDisplay() {
+			const remaining = getSecondsRemaining()
+			const mins = Math.floor(remaining / 60)
+			const secs = remaining % 60
+			timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`
+
+			timerDisplay.classList.remove('warning', 'danger')
+			if (mins <= 5) {
+				timerDisplay.classList.add('danger')
+			} else if (mins <= 15) {
+				timerDisplay.classList.add('warning')
+			}
+
+			if (remaining <= 0) {
+				clearInterval(timerInterval)
+				timerDisplay.textContent = '0:00'
+				timerDisplay.classList.add('danger')
+			}
+		}
+
+		function startTimerInterval() {
+			if (timerInterval) clearInterval(timerInterval)
+			updateTimerDisplay()
+			timerInterval = setInterval(() => {
+				updateTimerDisplay()
+				const remaining = getSecondsRemaining()
+				if (remaining === 15 * 60) {
+					alert('15 minutes remaining!')
+				}
+				if (remaining <= 0) {
+					clearInterval(timerInterval)
+					alert('95 minutes — Time check!')
+				}
+			}, 1000)
+		}
+
+		btnStartTimer.addEventListener('click', () => {
+			if (timerStarted) return
+
+			timerStarted = true
+			timerStartTime = Date.now()
+			btnStartTimer.disabled = true
+			btnStartTimer.textContent = 'RUNNING...'
+
+			document.getElementById('hiddenContent').classList.add('visible')
+			startTimerInterval()
+			saveState()
+			showToast('Timer started — 95 minutes')
+		})
+
+		// Clear Form
+		document.getElementById('btnClearForm').addEventListener('click', () => {
+			if (!confirm('Clear everything? This resets the form, timer, and all saved prompts.')) return
+
+			taskIdInput.value = ''
+			repoUrlInput.value = ''
+			fullNameInput.value = 'Flavio Espinoza'
+
+			document.querySelectorAll('.task-id, .task-id-raw, .task-id-text').forEach(el => {
+				el.textContent = '{TASK_ID}'
+				el.classList.add('placeholder')
+			})
+
+			document.querySelectorAll('.repo-url').forEach(el => {
+				el.textContent = '{REPO_URL}'
+				el.classList.add('placeholder')
+			})
+
+			document.querySelectorAll('.full-name').forEach(el => {
+				el.textContent = 'Flavio Espinoza'
+			})
+
+			// Clear prompts
+			document.querySelectorAll('.prompt-editable').forEach(el => {
+				el.innerHTML = ''
+			})
+
+			document.title = 'Mercor Sprint — {TASK_ID}'
+
+			// Reset timer
+			if (timerInterval) {
+				clearInterval(timerInterval)
+				timerInterval = null
+			}
+			timerStarted = false
+			timerStartTime = null
+			timerDisplay.textContent = '95:00'
+			timerDisplay.classList.remove('warning', 'danger')
+			btnStartTimer.disabled = false
+			btnStartTimer.textContent = 'START TIMER — 95 MIN'
+			document.getElementById('hiddenContent').classList.remove('visible')
+
+			localStorage.removeItem(STORAGE_KEY)
+			showToast('Form and localStorage cleared!')
+		})
+
+		// Copy code block content
+		function copyCode(button) {
+			const codeBlock = button.closest('.code-block-wrapper').querySelector('.code-block')
+			const text = codeBlock.textContent
+
+			navigator.clipboard.writeText(text).then(() => {
+				showToast('Copied!')
+			}).catch(() => {
+				showToast('Failed to copy')
+			})
+		}
+
+		// Copy editable prompt content
+		function copyEditable(id) {
+			const el = document.getElementById(id)
+			const text = el.innerText.trim()
+
+			navigator.clipboard.writeText(text).then(() => {
+				showToast('Copied!')
+			}).catch(() => {
+				showToast('Failed to copy')
+			})
+		}
+
+		// Show toast notification
+		function showToast(message) {
+			toast.textContent = message
+			toast.classList.add('show')
+			setTimeout(() => {
+				toast.classList.remove('show')
+			}, 2000)
+		}
+
+		// --- URL query param auto-fill ---
+		function loadFromQueryParams() {
+			const params = new URLSearchParams(window.location.search)
+			const qTaskId = params.get('taskId')
+			const qRepoUrl = params.get('repoUrl')
+
+			if (!qTaskId) return false
+
+			// New task from task-setup.sh — clear old state, fill fresh
+			localStorage.removeItem(STORAGE_KEY)
+
+			taskIdInput.value = qTaskId
+			if (qRepoUrl) repoUrlInput.value = decodeURIComponent(qRepoUrl)
+			fullNameInput.value = fullNameInput.value || 'Flavio Espinoza'
+
+			// Auto-generate commands
+			document.getElementById('btnGenerate').click()
+			return true
+		}
+
+		// Priority: query params (new task) > localStorage (resume)
+		if (!loadFromQueryParams()) {
+			restoreState()
+		}
+	</script>
+</body>
+</html>
