@@ -7,9 +7,9 @@ Strategy (one rule):
   bullish trend -> LONG  (1x, no leverage)
   bearish trend -> FLAT  (cash)
 
-Execution model: next-bar entry.
-  Signal fires at bar N's close, fill at N's close, first P&L is bar N+1.
-  Implemented by applying P&L BEFORE the trend-flip check in the loop.
+Execution model: signal bar capture (A.0).
+  Signal fires at bar N's close, state flips immediately, P&L credited on bar N.
+  Implemented by applying the trend-flip check BEFORE P&L in the loop.
 """
 
 import pandas as pd
@@ -47,15 +47,17 @@ def run_backtest(
         prev_trend = trends[i - 1]
         curr_trend = trends[i]
 
-        # P&L BEFORE trend flip (next-bar entry)
+        # A.0: Trend flip BEFORE P&L (signal bar capture)
+        if curr_trend != prev_trend:
+            trades += 1
+            state = "long" if curr_trend == "bullish" else "flat"
+
         if state == "long":
             daily_return = (curr_close - prev_close) / prev_close
             equity *= 1.0 + daily_return
 
-        # Trend transition -> record trade, flip state
+        # Record trade after equity update
         if curr_trend != prev_trend:
-            trades += 1
-            state = "long" if curr_trend == "bullish" else "flat"
             trade_log.append({
                 "date": timestamps.iloc[i].strftime("%Y-%m-%d"),
                 "action": "LONG" if state == "long" else "FLAT",

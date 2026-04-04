@@ -11,10 +11,16 @@
       "Bash(git checkout:*)",
       "Bash(grep \"\\\\.py$\")",
       "Bash(git rm:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(wc -l \"/Users/flavio/Portfolio/sol-engine/_reports/trading-view__A1/\"*.csv)",
+      "Read(//Users/flavio/Portfolio/sol-engine/_reports/trading-view__A1/**)",
+      "Read(//Users/flavio/Portfolio/sol-bot/**)"
     ],
     "additionalDirectories": [
-      "/Users/flavio/Portfolio/sol-bot/engine-backtest-platform/_notes"
+      "/Users/flavio/Portfolio/sol-bot/engine-backtest-platform/_notes",
+      "/Users/flavio/Portfolio/sol-bot-archive/_reports/results",
+      "/Users/flavio/Portfolio/sol-engine/platform/src/engine",
+      "/Users/flavio/Portfolio/sol-engine/web/public/reports"
     ]
   }
 }
